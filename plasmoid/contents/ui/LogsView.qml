@@ -17,6 +17,20 @@ Item {
     signal back()
     signal refreshRequested()
 
+    TextEdit {
+        id: clipSource
+        visible: false
+        text: logPage.logs
+    }
+
+    function copyLogs() {
+        if (logPage.logs === "") {
+            return;
+        }
+        clipSource.selectAll();
+        clipSource.copy();
+    }
+
     ColumnLayout {
         anchors.fill: parent
         spacing: Kirigami.Units.smallSpacing
@@ -24,8 +38,22 @@ Item {
         PageHeader {
             title: logPage.containerName
             backTooltip: i18n("Volver al detalle")
+            showRefresh: false
             onBack: logPage.back()
             onRefreshRequested: logPage.refreshRequested()
+
+            PlasmaComponents.Button {
+                text: i18n("Actualizar")
+                icon.name: "view-refresh"
+                onClicked: logPage.refreshRequested()
+            }
+
+            PlasmaComponents.Button {
+                text: i18n("Copiar")
+                icon.name: "edit-copy"
+                enabled: logPage.logs !== ""
+                onClicked: logPage.copyLogs()
+            }
         }
 
         Rectangle {

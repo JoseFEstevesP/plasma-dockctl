@@ -10,7 +10,7 @@
         "Description": "Ver y gestionar los contenedores Docker desde la barra",
         "EnabledByDefault": true,
         "Id": "org.gato99.dockctl",
-        "Icon": "system-run",
+        "Icon": "docker",
         "License": "GPL-3.0",
         "Name": "Contenedores Docker",
         "Version": "1.0"

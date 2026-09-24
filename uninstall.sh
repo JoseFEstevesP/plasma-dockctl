@@ -6,6 +6,7 @@ set -euo pipefail
 systemctl --user disable --now dockctl 2>/dev/null || true
 rm -rf "${HOME}/.local/share/plasma/plasmoids/org.gato99.dockctl"
 rm -f "${HOME}/.config/systemd/user/dockctl.service"
+rm -f "${HOME}/.local/share/icons/hicolor/scalable/apps/docker.svg"
 systemctl --user daemon-reload
 
 echo "Listo: widget y servicio eliminados."

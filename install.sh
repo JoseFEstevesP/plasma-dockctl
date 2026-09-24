@@ -19,6 +19,13 @@ mkdir -p "${PLASMOID_DEST}"
 rm -rf "${PLASMOID_DIR}"
 cp -r "${DIR}/plasmoid" "${PLASMOID_DIR}"
 
+echo "==> Icono de tema (para el selector de widgets)"
+ICON_DIR="${HOME}/.local/share/icons/hicolor/scalable/apps"
+mkdir -p "${ICON_DIR}"
+cp "${DIR}/plasmoid/contents/images/docker.svg" "${ICON_DIR}/docker.svg"
+gtk-update-icon-cache -f -q "${HOME}/.local/share/icons/hicolor" 2>/dev/null || true
+rm -f "${HOME}/.cache/icon-cache.kcache" 2>/dev/null || true
+
 echo "==> Backend ->  ${BACKEND_DIR}"
 mkdir -p "${BACKEND_DIR}"
 cp "${DIR}/backend/backend.py" "${BACKEND_DIR}/backend.py"

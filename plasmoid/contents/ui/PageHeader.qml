@@ -12,6 +12,7 @@ RowLayout {
     property string title: ""
     property string backTooltip: i18n("Volver")
     property string refreshTooltip: i18n("Actualizar")
+    property bool showRefresh: true
 
     signal back()
     signal refreshRequested()
@@ -41,6 +42,7 @@ RowLayout {
         icon.name: "view-refresh"
         Controls.ToolTip.visible: hovered
         Controls.ToolTip.text: header.refreshTooltip
+        visible: header.showRefresh
         onClicked: header.refreshRequested()
     }
 

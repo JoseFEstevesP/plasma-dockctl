@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>vistas dockctl</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Noto Sans", "DejaVu Sans", sans-serif; }
+  body { background: #000; padding: 40px 60px; }
+  .shots { display: flex; flex-wrap: wrap; gap: 48px; align-items: flex-start; }
+  .pop { width: 432px; background: rgba(21,21,21,0.97); border-radius: 8px;
+         border: 1px solid rgba(255,255,255,0.08);
+         box-shadow: 0 12px 34px rgba(0,0,0,0.65); overflow: hidden; }
+  .head { display: flex; align-items: center; gap: 8px; padding: 7px 10px; background: rgba(255,255,255,0.04); }
+  .head .title { flex: 1; font-size: 13px; font-weight: 700; color: #f3f4f6; }
+  .ico { width: 18px; height: 18px; color: #d7d9de; }
+  .ico svg { width: 100%; height: 100%; }
+  .btn { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px;
+         border-radius: 4px; font-size: 12px; color: #d7d9de;
+         background: rgba(255,255,255,0.06); }
+  .btn.acc { background: #2e7fb8; color: #fff; }
+  .body { padding: 4px 6px 7px; }
+  .group { margin-top: 7px; }
+  .gtitle { display: flex; align-items: center; gap: 6px; padding: 2px 6px; font-size: 12px;
+            color: #9aa0a6; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+  .gtitle .cnt { color: #6b7280; }
+  .row { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 5px; }
+  .row:hover, .row.sel { background: rgba(255,255,255,0.06); }
+  .dot { width: 11px; height: 11px; border-radius: 50%; flex: none; }
+  .dot.g { background: #3dd68c; } .dot.o { background: #f5a623; } .dot.n { background: #5f6672; }
+  .rname { font-size: 13px; color: #f3f4f6; font-weight: 600; }
+  .rimg { font-size: 11px; color: #9aa0a6; margin-top: 1px; }
+  .rstat { font-size: 11px; color: #9aa0a6; }
+  .spacer { flex: 1; }
+  .more { color: #b6bac2; font-size: 13px; }
+  .sep { height: 1px; background: rgba(255,255,255,0.10); margin: 5px 6px; }
+  .banner { margin: 6px 8px 2px; padding: 6px 9px; font-size: 12px; color: #c6e7ff;
+             background: #143a52; border: 1px solid #28597a; border-radius: 5px;
+             display: flex; align-items: center; gap: 8px; }
+  .banner .b { margin-left: auto; color: #9adcff; font-weight: 700; }
+  .kills { padding: 2px 6px; }
+  .kills .kv { display: flex; justify-content: space-between; padding: 3px 4px; font-size: 12px; }
+  .kills .kv b { color: #f3f4f6; font-weight: 600; }
+  .kills .kv span { color: #9aa0a6; }
+  .logs { padding: 6px; }
+  .logbox { background: #0d0d0d; border: 1px solid rgba(255,255,255,0.07); border-radius: 6px;
+            padding: 8px 10px; font-family: "JetBrains Mono", "DejaVu Sans Mono", monospace;
+            font-size: 11px; line-height: 1.55; }
+  .c0 { color: #d0d4da; } .c1 { color: #c9a0ff; } .c2 { color: #7fc9ff; } .c3 { color: #f0d8a8; }
+  .c4 { color: #de6b6b; }
+  .chk { width: 432px; background: rgba(21,21,21,0.97); border-radius: 8px;
+         border: 1px solid rgba(255,255,255,0.08);
+         box-shadow: 0 12px 34px rgba(0,0,0,0.65); padding: 12px; }
+  .chk .cap { font-size: 11px; color: #6b7280; margin-bottom: 8px; text-transform: uppercase; letter-spacing: .6px; }
+  .cell { display: flex; flex-direction: column; gap: 5px; align-items: center; width: 96px; }
+  .cell .ic { width: 34px; height: 34px; padding: 5px; border-radius: 7px; color: #f3f4f6; }
+  .cell .ic.dk { background: #17263a; }
+  .cell .lb { font-size: 11px; color: #f3f4f6; text-align: center; }
+  .chip { display: inline-flex; align-items: center; gap: 7px; padding: 4px 10px 4px 6px;
+          border-radius: 999px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); }
+  .chip img { width: 15px; height: 15px; }
+  .chip .cnt { font-size: 12px; color: #f3f4f6; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="shots">
+
+  <div class="pop" id="principal">
+    <div class="head">
+      <div class="title">Contenedores</div>
+      <div class="ico"><svg viewBox="0 0 16 16" style="fill:none;stroke:currentColor;stroke-width:1.5" stroke-linecap="round"><path d="M8 3 13 5.5v5L8 13l-5-2.5v-5z"/><path d="M8 8l5-2.5M8 8L3 5.5M8 8v5"/></svg></div>
+    </div>
+    <div class="body">
+      <div class="group g1">
+        <div class="gtitle"><span class="cnt"></span>facturacionivss</div>
+        <div class="row"><span class="dot g"></span><div><div class="rname">app</div></div><div class="spacer"></div><span class="rstat">Up 2 hours · 8080→80</span></div>
+        <div class="row"><span class="dot g"></span><div><div class="rname">mysql</div></div><div class="spacer"></div><span class="rstat">Up 2 hours</span></div>
+        <div class="row"><span class="dot n"></span><div><div class="rname">cron</div></div><div class="spacer"></div><span class="rstat">Exited (0) 1 day ago</span></div>
+      </div>
+      <div class="sep"></div>
+      <div class="group g2">
+        <div class="gtitle"><span class="cnt"></span>Sin stack</div>
+        <div class="row"><span class="dot o"></span><div><div class="rname">web</div><div class="rimg">nginx:1.27</div></div><div class="spacer"></div><span class="rstat">Up 4 hours webapp</span></div>
+      </div>
+      <div class="sep"></div>
+      <div class="row"><span class="dot n"></span><div><div class="rname">old-server</div><div class="rimg">mysql:5.7</div></div><div class="spacer"></div><span class="rstat">Exited (1) 3 weeks ago</span><span class="more">›</span></div>
+    </div>
+  </div>
+
+  <div class="pop" id="stack">
+    <div class="head">
+      <div class="ico"><svg viewBox="0 0 16 16" style="fill:none;stroke:currentColor;stroke-width:1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 3 6 7.5l4.5 4.5"/></svg></div>
+      <div class="title">facturacionivss</div>
+      <span class="btn acc">Reiniciar · 3</span>
+    </div>
+    <div class="banner">Se reiniciarán <b>3</b> contenedores del stack. <span class="b">Confirmar</span></div>
+    <div class="body">
+      <div class="row"><span class="dot g"></span><div><div class="rname">app</div><div class="rimg">app:1.4.2</div></div><div class="spacer"></div><span class="rstat">8080→80</span><span class="more">⋯</span></div>
+      <div class="row"><span class="dot g"></span><div><div class="rname">mysql</div></div><div class="spacer"></div><span class="rstat">3306</span><span class="more">⋯</span></div>
+      <div class="row"><span class="dot n"></span><div><div class="rname">cron</div></div><div class="spacer"></div><span class="rstat">Off</span><span class="more">⋯</span></div>
+    </div>
+  </div>
+
+  <div class="pop" id="detalle">
+    <div class="head">
+      <div class="ico"><svg viewBox="0 0 16 16" style="fill:none;stroke:currentColor;stroke-width:1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 3 6 7.5l4.5 4.5"/></svg></div>
+      <div class="title">app</div>
+      <div class="ico"><svg viewBox="0 0 16 16" style="fill:none;stroke:currentColor;stroke-width:1.5" stroke-linecap="round"><path d="M14 8a6 6 0 1 1-1.6-4M14 3v3l-3-1"/></svg></div>
+    </div>
+    <div class="body">
+      <div class="row"><span class="dot g"></span><div><div class="rname">running · saludable</div></div>
+        <div class="spacer"></div>
+        <span class="btn">Iniciar</span><span class="btn acc">Reiniciar</span><span class="btn">Logs</span></div>
+      <div class="sep"></div>
+      <div class="kills">
+        <div class="kv" style="justify-content:flex-start;gap:60px"><span>Imagen</span><span><b>app:1.4.2</b></span></div>
+        <div class="kv"><span>Identificador</span><span><b>aa11bb22cc33</b></span></div>
+        <div class="kv"><span>Red</span><span><b>facturacionivss_network</b></span></div>
+        <div class="kv"><span>IP</span><span><b>172.30.0.6</b></span></div>
+        <div class="kv"><span>Puertos</span><span><b>0.0.0.0:8080 → 80/tcp</b></span></div>
+        <div class="kv"><span>Creado</span><span><b>2026-09-23 00:56</b></span></div>
+        <div class="kv"><span>Iniciado</span><span><b>2026-09-24 00:21</b></span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pop" id="logs">
+    <div class="head">
+      <div class="ico"><svg viewBox="0 0 16 16" style="fill:none;stroke:currentColor;stroke-width:1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 3 6 7.5l4.5 4.5"/></svg></div>
+      <div class="title">app · Logs</div>
+      <span class="btn">Actualizar</span><span class="btn acc">Copiar</span>
+    </div>
+    <div class="logs">
+      <div class="logbox">
+        <div class="c2">[24/Sep/2026 00:31:12] INFO  Booting worker: app</div>
+        <div class="c3">[24/Sep/2026 00:31:14] WARN  Retrying database connection (2/5)</div>
+        <div class="c1">[24/Sep/2026 00:31:19] DEBUG GET /api/health 200 2ms</div>
+        <div class="c0">[24/Sep/2026 00:31:27] INFO  Worker 4 online</div>
+        <div class="c2">[24/Sep/2026 00:32:01] INFO  Booting worker: app</div>
+        <div class="c4">[24/Sep/2026 00:32:04] ERROR Request failed: connect ECONNREFUSED 172.30.0.3:3306</div>
+        <div class="c2">[24/Sep/2026 00:32:11] INFO  Database connection established</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chk" id="anadir">
+    <div class="cap">Gestionar elementos gráficos · buscar</div>
+    <div class="cell">
+      <div class="ic dk">
+        <svg viewBox="0 0 24 24"><path fill="#2496ed" d="M13.5 3.1c3.1-.0 7.1.4 9 2.1L21 9.6c-1.6-1.3-4-1.7-6.1-2.1-.8-.2-1.4-.6-2.4-.7-.4-.7-.6-2.7-.4-3.7zm-2.6.1c.2 1-.4 3-.3 3.7-4.2 1.1-8.5 2.4-8.9 6.9-.8-4.3 2-9.8 9.2-10.6zm9.2 6.5c.7.6 1.1 1.6 1.1 3.2-.4-1.9-2.1-2.6-4.1-3.4 4.3-.1 2.8 2.6 3 .2zM8.3 10.9c.5 0 .9.4.9.9s-.4.9-.9.9-.9-.4-.9-.9.4-.9.9-.9zm7.7 0c.5 0 .9.4.9.9s-.4.9-.9.9-.9-.4-.9-.9.4-.9.9-.9zM9 12.7l.4 1.5c1.5-.3 2.8-.3 4.3 0l.4-1.5c-1.7-.4-3.4-.4-5.1 0zM10 15h-1l.5 2c.5.1 1 0 1.5.1l-.5-2-.5-.1zm5 0-1 .1-.5 2c.6-.1 1-.0 1.5-.1l.6-1 1.2-1c.1-.7-.3-1-1-1l-1-1.3-1-.3v1l-.7.5-1.6-.5-1 .3-.7-.5v-1l-1 .3-1 1.3c-.7.0-1.1.3-1 1l1.2 1L8 15h-1l.7 2.3 1.6.5 1.4 2.5 1.4-2.5 1.6-.5L10 15zm5.6-1.4.3 1.4-1.5.6-.3 1.4 1.4.7-.4 1.2-1.5-.7-1.6.5c-.2.6.3 1 1.4 1.9l-.7 1.1c-1.2-.9-1.7-1.4-2.1-2.1-1 .9-2.9 2.6-3.4 1.3.8-.7.2-1.2-.2-1.3-1 .9-2.1 1.9-2.1.9.1-.7 1.1-1.2 1.1-2L8 17l.4-1.2-1.5-.7L7.3 14c1.4.3 2.1.1 2.5-.4l1-.2 1.1-2.2 1.1 2.2 1 .2c.3.5 1.1.7 2.5.4z"/></svg>
+      </div>
+      <div class="lb">Contenedores Docker</div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

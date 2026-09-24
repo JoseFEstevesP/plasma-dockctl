@@ -16,10 +16,25 @@ eliminar) y ver sus logs, todo sin abrir una terminal.
 - Acción **"reiniciar todos"** por stack, con confirmación.
 - Detalle de contenedor: ips, redes, puertos, fecha de creación/inicio,
   política de reinicio.
-- Visor de logs con scroll y botón de refresco.
+- Visor de logs con scroll, botón **Actualizar** y **Copiar al portapapeles**.
 - Polling solo cuando el panel está abierto (silencioso en background).
 - Alterna entre vista compacta y ampliada desde el diálogo de configuración.
 - Icono compacto con el conteo de contenedores por stack.
+
+## Capturas
+
+Vista principal, detalle de stack, detalle de contenedor, visor de logs y
+la entrada del widget en "Añadir widgets" (con el icono de Docker):
+
+![Vista principal](docs/screenshots/principal.png)
+
+![Vista de stack](docs/screenshots/stack.png)
+
+![Detalle de contenedor](docs/screenshots/detalle.png)
+
+![Visor de logs](docs/screenshots/logs.png)
+
+![Añadir widgets · icono](docs/screenshots/anadir.png)
 
 ## Arquitectura
 
@@ -51,9 +66,11 @@ cd plasma-dockctl
 El instalador:
 
 1. Copia el widget a `~/.local/share/plasma/plasmoids/`.
-2. Copia el backend a `~/.local/share/dockctl/`.
-3. Registra y arranca `dockctl.service` (recomienda reiniciar plasmashell).
-4. Crea `~/.config/dockctl/config.ini` con los valores por defecto si no existe.
+2. Instala el icono de Docker como icono de tema (para que se vea en el
+   selector de widgets).
+3. Copia el backend a `~/.local/share/dockctl/`.
+4. Registra y arranca `dockctl.service` (recomienda reiniciar plasmashell).
+5. Crea `~/.config/dockctl/config.ini` con los valores por defecto si no existe.
 
 Después añade el widget con **clic derecho en la barra → Añadir widgets →
 Contenedores Docker**.
@@ -63,6 +80,28 @@ Contenedores Docker**.
 ```bash
 git clone https://github.com/JoseFEstevesP/plasma-dockctl && cd plasma-dockctl && ./install.sh
 ```
+
+### Instalar solo el widget desde un archivo local
+
+Como con cualquier otro elemento gráfico, puedes instalar únicamente el widget
+desde el archivo `dist/org.gato99.dockctl.plasmoid`:
+
+1. Clic derecho en la barra → **Añadir o gestionar widgets**.
+2. Abre el menú **Obtener nuevos widgets → Instalar desde archivo local…**.
+3. Selecciona `org.gato99.dockctl.plasmoid`.
+
+O desde terminal:
+
+```bash
+kpackagetool6 -t Plasma/Applet -i dist/org.gato99.dockctl.plasmoid
+```
+
+Para regenerar el paquete desde el código: `./build.sh`.
+
+> El archivo `.plasmoid` solo instala la parte gráfica. El widget necesita el
+> backend para funcionar: es el servicio que se instala con `./install.sh`,
+> así que lo habitual es usar el instalador completo; la opción del archivo
+> local sirve para probarlo o para actualizar el widget sin tocar el backend.
 
 ## Configuración
 
@@ -145,8 +184,12 @@ plasma-dockctl/
 ./uninstall.sh
 ```
 
-Detiene el servicio, borra el widget y la unidad systemd (mantiene los
-archivos de backend y configuración).
+Detiene el servicio, borra el widget, el icono de tema y la unidad systemd
+(mantiene los archivos de backend y configuración).
+
+> Nota: el botón de borrar del panel "Añadir o gestionar widgets" **solo retira
+> el widget de la barra**; no desinstala el paquete. Para quitar el widget sin
+> tocar el backend: `kpackagetool6 -t Plasma/Applet -r org.gato99.dockctl`.
 
 ## Licencia
 
