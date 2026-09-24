@@ -10,7 +10,7 @@ PlasmoidItem {
     id: root
 
     Plasmoid.status: PlasmaCore.Types.PassiveStatus
-    Plasmoid.icon: "system-run"
+    Plasmoid.icon: "docker"
     toolTipMainText: i18n("Contenedores Docker")
     toolTipSubText: root.lastError
         ? i18n("Backend no disponible")
@@ -79,21 +79,13 @@ PlasmoidItem {
                 }
 
                 Text {
-                    text: i18n("Contenedores Docker")
+                    text: i18n("Contenedores")
                     font.bold: true
                     color: Kirigami.Theme.textColor
                     Layout.alignment: Qt.AlignVCenter
                     Layout.fillWidth: true
                     elide: Text.ElideRight
                     font.pixelSize: Kirigami.Theme.defaultFont.pixelSize
-                }
-
-                Text {
-                    text: root.runningCount + " / " + (root.runningCount + root.stoppedCount)
-                    color: Kirigami.Theme.textColor
-                    opacity: 0.7
-                    Layout.alignment: Qt.AlignVCenter
-                    font.pixelSize: Kirigami.Theme.smallFont.pixelSize
                 }
 
                 PlasmaComponents.ToolButton {

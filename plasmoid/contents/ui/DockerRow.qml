@@ -11,12 +11,25 @@ Item {
     height: Math.max(layout.implicitHeight, 40)
 
     property var container: ({})
+    property bool hovered: false
+
     signal requestAction(string name, string action)
     signal openDetail(string name)
+
+    Rectangle {
+        anchors.fill: parent
+        radius: 6
+        color: Kirigami.Theme.textColor
+        opacity: delegate.hovered ? 0.07 : 0
+        Behavior on opacity { NumberAnimation { duration: 120 } }
+    }
 
     MouseArea {
         anchors.fill: parent
         acceptedButtons: Qt.LeftButton
+        hoverEnabled: true
+        onEntered: delegate.hovered = true
+        onExited: delegate.hovered = false
         onClicked: delegate.openDetail(delegate.container.name)
     }
 
@@ -39,7 +52,7 @@ Item {
             spacing: 1
 
             Text {
-                text: delegate.container.stack && (delegate.container.stack + " / ") + delegate.container.name
+                text: delegate.container.name || ""
                 elide: Text.ElideRight
                 Layout.fillWidth: true
                 font.bold: true
@@ -64,7 +77,7 @@ Item {
                 elide: Text.ElideRight
                 Layout.fillWidth: true
                 color: Kirigami.Theme.textColor
-                opacity: 0.7
+                opacity: 0.65
                 font.pixelSize: Kirigami.Theme.smallFont.pixelSize
             }
         }
@@ -105,14 +118,6 @@ Item {
                 Controls.ToolTip.visible: hovered
                 Controls.ToolTip.text: i18n("Eliminar")
                 onClicked: delegate.requestAction(delegate.container.name, "remove")
-            }
-
-            PlasmaComponents.ToolButton {
-                hoverEnabled: true
-                icon.name: "go-next"
-                Controls.ToolTip.visible: hovered
-                Controls.ToolTip.text: i18n("Detalles y logs")
-                onClicked: delegate.openDetail(delegate.container.name)
             }
         }
     }

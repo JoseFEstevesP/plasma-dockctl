@@ -225,6 +225,7 @@ Item {
             Layout.fillWidth: true
             wrapMode: Text.Wrap
             color: Kirigami.Theme.textColor
+            font.bold: true
             font.pixelSize: Kirigami.Theme.smallFont.pixelSize
         }
     }

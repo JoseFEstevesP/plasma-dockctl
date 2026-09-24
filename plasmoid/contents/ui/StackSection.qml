@@ -15,10 +15,11 @@ ColumnLayout {
 
     Item {
         Layout.fillWidth: true
-        Layout.preferredHeight: 28
+        Layout.preferredHeight: 24
 
         MouseArea {
             anchors.fill: parent
+            hoverEnabled: true
             onClicked: section.openStack(section.stack ? section.stack.key : "")
         }
 
@@ -29,27 +30,21 @@ ColumnLayout {
             spacing: Kirigami.Units.smallSpacing
 
             Text {
-                text: section.title
+                text: section.title.toUpperCase()
                 font.bold: true
+                font.letterSpacing: 0.7
+                font.pixelSize: Kirigami.Theme.smallFont.pixelSize
                 elide: Text.ElideRight
                 Layout.fillWidth: true
                 color: Kirigami.Theme.textColor
-                font.pixelSize: Kirigami.Theme.defaultFont.pixelSize
+                opacity: 0.55
             }
 
-        Text {
+            Text {
                 text: section.stack ? section.stack.running + " / " + section.stack.containers.length : ""
                 color: Kirigami.Theme.textColor
-                opacity: 0.6
+                opacity: 0.45
                 font.pixelSize: Kirigami.Theme.smallFont.pixelSize
-            }
-
-            Kirigami.Icon {
-                Layout.preferredWidth: Kirigami.Units.iconSizes.small
-                Layout.preferredHeight: Kirigami.Units.iconSizes.small
-                source: "go-next"
-                color: Kirigami.Theme.textColor
-                opacity: 0.5
             }
         }
     }
@@ -58,7 +53,7 @@ ColumnLayout {
         Layout.fillWidth: true
         Layout.preferredHeight: 1
         color: Kirigami.Theme.textColor
-        opacity: 0.1
+        opacity: 0.12
     }
 
     Item {

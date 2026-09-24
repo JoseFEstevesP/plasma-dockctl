@@ -31,6 +31,37 @@ Item {
         clipSource.copy();
     }
 
+    function colorString(c) {
+        return "#"
+            + Math.round(c.r * 255).toString(16).padStart(2, "0")
+            + Math.round(c.g * 255).toString(16).padStart(2, "0")
+            + Math.round(c.b * 255).toString(16).padStart(2, "0");
+    }
+
+    function esc(s) {
+        return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    function renderLogs(raw) {
+        var out = "";
+        var lines = raw.split("\n");
+        for (var i = 0; i < lines.length; i++) {
+            var lower = lines[i].toLowerCase();
+            var color = "";
+            if (lower.indexOf("error") >= 0 || lower.indexOf("traceback") >= 0) {
+                color = colorString(Kirigami.Theme.negativeTextColor);
+            } else if (lower.indexOf("warn") >= 0) {
+                color = colorString(Kirigami.Theme.neutralTextColor);
+            } else if (lower.indexOf("debug") >= 0) {
+                color = colorString(Kirigami.Theme.highlightColor);
+            }
+            out += (color !== "")
+                ? "<span style=\"color:" + color + "\">" + esc(lines[i]) + "</span>\n"
+                : esc(lines[i]) + "\n";
+        }
+        return out;
+    }
+
     ColumnLayout {
         anchors.fill: parent
         spacing: Kirigami.Units.smallSpacing
@@ -96,20 +127,31 @@ Item {
                 font.pixelSize: Kirigami.Theme.defaultFont.pixelSize
             }
 
-            Controls.ScrollView {
+            Rectangle {
                 anchors.fill: parent
                 visible: !logPage.loading && logPage.error === "" && logPage.logs !== ""
+                radius: Kirigami.Units.smallSpacing
+                color: Kirigami.Theme.alternateBackgroundColor
+                border.color: Qt.rgba(Kirigami.Theme.textColor.r,
+                                      Kirigami.Theme.textColor.g,
+                                      Kirigami.Theme.textColor.b, 0.18)
 
-                Controls.TextArea {
-                    text: logPage.logs
-                    readOnly: true
-                    wrapMode: TextEdit.NoWrap
-                    color: Kirigami.Theme.textColor
-                    selectionColor: Kirigami.Theme.highlightColor
-                    selectedTextColor: Kirigami.Theme.highlightedTextColor
-                    font.family: "monospace"
-                    font.pixelSize: Kirigami.Theme.smallFont.pixelSize
-                    background: null
+                Controls.ScrollView {
+                    anchors.fill: parent
+                    anchors.margins: Kirigami.Units.smallSpacing
+
+                    Controls.TextArea {
+                        text: logPage.renderLogs(logPage.logs)
+                        textFormat: TextEdit.RichText
+                        readOnly: true
+                        wrapMode: TextEdit.NoWrap
+                        color: Kirigami.Theme.textColor
+                        selectionColor: Kirigami.Theme.highlightColor
+                        selectedTextColor: Kirigami.Theme.highlightedTextColor
+                        font.family: "monospace"
+                        font.pixelSize: Kirigami.Theme.smallFont.pixelSize
+                        background: null
+                    }
                 }
             }
         }
