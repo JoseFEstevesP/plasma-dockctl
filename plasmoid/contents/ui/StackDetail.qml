@@ -1,8 +1,7 @@
 import QtQuick
-import QtQuick.Controls as Controls
 import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
-import org.kde.plasma.components as PlasmaComponents
+import "DockStyle.js" as DS
 
 Item {
     id: stackPage
@@ -26,11 +25,10 @@ Item {
             onBack: stackPage.back()
             onRefreshRequested: stackPage.refreshRequested()
 
-            PlasmaComponents.Button {
-                text: stackPage.stack ? String(stackPage.stack.containers.length) : ""
-                icon.name: "media-playback-restart"
-                Controls.ToolTip.visible: hovered
-                Controls.ToolTip.text: i18n("Reiniciar todos los contenedores del stack")
+            ChipButton {
+                text: stackPage.stack ? i18n("Reiniciar · %1", stackPage.stack.containers.length) : ""
+                icon: Qt.resolvedUrl("../images/icons/refresh.svg")
+                accent: true
                 onClicked: stackPage.restartAll()
             }
         }
@@ -38,8 +36,7 @@ Item {
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 1
-            color: Kirigami.Theme.textColor
-            opacity: 0.15
+            color: DS.divider
         }
 
         Item {
@@ -50,8 +47,7 @@ Item {
             Text {
                 anchors.centerIn: parent
                 text: i18n("Sin contenedores en este stack")
-                color: Kirigami.Theme.textColor
-                opacity: 0.6
+                color: DS.subText
                 font.pixelSize: Kirigami.Theme.defaultFont.pixelSize
             }
         }

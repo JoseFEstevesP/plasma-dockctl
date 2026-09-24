@@ -3,6 +3,7 @@ import QtQuick.Controls as Controls
 import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
 import org.kde.plasma.components as PlasmaComponents
+import "DockStyle.js" as DS
 
 RowLayout {
     id: header
@@ -22,7 +23,7 @@ RowLayout {
 
     PlasmaComponents.ToolButton {
         hoverEnabled: true
-        icon.name: "go-previous"
+        icon.source: Qt.resolvedUrl("../images/icons/chevron-left.svg")
         Controls.ToolTip.visible: hovered
         Controls.ToolTip.text: header.backTooltip
         onClicked: header.back()
@@ -33,13 +34,13 @@ RowLayout {
         font.bold: true
         elide: Text.ElideRight
         Layout.fillWidth: true
-        color: Kirigami.Theme.textColor
-        font.pixelSize: Kirigami.Theme.defaultFont.pixelSize
+        color: DS.text
+        font.pixelSize: 13
     }
 
     PlasmaComponents.ToolButton {
         hoverEnabled: true
-        icon.name: "view-refresh"
+        icon.source: Qt.resolvedUrl("../images/icons/refresh.svg")
         Controls.ToolTip.visible: hovered
         Controls.ToolTip.text: header.refreshTooltip
         visible: header.showRefresh

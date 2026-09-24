@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
+import "DockStyle.js" as DS
 
 ColumnLayout {
     id: section
@@ -32,19 +33,17 @@ ColumnLayout {
             Text {
                 text: section.title.toUpperCase()
                 font.bold: true
-                font.letterSpacing: 0.7
-                font.pixelSize: Kirigami.Theme.smallFont.pixelSize
+                font.letterSpacing: 0.5
+                font.pixelSize: 12
                 elide: Text.ElideRight
                 Layout.fillWidth: true
-                color: Kirigami.Theme.textColor
-                opacity: 0.55
+                color: DS.subText
             }
 
             Text {
                 text: section.stack ? section.stack.running + " / " + section.stack.containers.length : ""
-                color: Kirigami.Theme.textColor
-                opacity: 0.45
-                font.pixelSize: Kirigami.Theme.smallFont.pixelSize
+                color: DS.faint
+                font.pixelSize: 11
             }
         }
     }
@@ -52,8 +51,7 @@ ColumnLayout {
     Rectangle {
         Layout.fillWidth: true
         Layout.preferredHeight: 1
-        color: Kirigami.Theme.textColor
-        opacity: 0.12
+        color: DS.divider
     }
 
     Item {

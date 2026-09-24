@@ -3,6 +3,7 @@ import QtQuick.Controls as Controls
 import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
 import org.kde.plasma.components as PlasmaComponents
+import "DockStyle.js" as DS
 
 Item {
     id: delegate
@@ -18,9 +19,9 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        radius: 6
-        color: Kirigami.Theme.textColor
-        opacity: delegate.hovered ? 0.07 : 0
+        radius: 5
+        color: DS.text
+        opacity: delegate.hovered ? 0.06 : 0
         Behavior on opacity { NumberAnimation { duration: 120 } }
     }
 
@@ -56,8 +57,8 @@ Item {
                 elide: Text.ElideRight
                 Layout.fillWidth: true
                 font.bold: true
-                color: Kirigami.Theme.textColor
-                font.pixelSize: Kirigami.Theme.defaultFont.pixelSize
+                color: DS.text
+                font.pixelSize: 13
             }
 
             Text {
@@ -76,9 +77,8 @@ Item {
                 }
                 elide: Text.ElideRight
                 Layout.fillWidth: true
-                color: Kirigami.Theme.textColor
-                opacity: 0.65
-                font.pixelSize: Kirigami.Theme.smallFont.pixelSize
+                color: DS.subText
+                font.pixelSize: 11
             }
         }
 
@@ -89,7 +89,7 @@ Item {
             PlasmaComponents.ToolButton {
                 visible: delegate.container.running
                 hoverEnabled: true
-                icon.name: "media-playback-stop"
+                icon.source: Qt.resolvedUrl("../images/icons/stop.svg")
                 Controls.ToolTip.visible: hovered
                 Controls.ToolTip.text: i18n("Parar")
                 onClicked: delegate.requestAction(delegate.container.name, "stop")
@@ -98,7 +98,7 @@ Item {
             PlasmaComponents.ToolButton {
                 visible: !delegate.container.running
                 hoverEnabled: true
-                icon.name: "media-playback-start"
+                icon.source: Qt.resolvedUrl("../images/icons/play.svg")
                 Controls.ToolTip.visible: hovered
                 Controls.ToolTip.text: i18n("Iniciar")
                 onClicked: delegate.requestAction(delegate.container.name, "start")
@@ -106,7 +106,7 @@ Item {
 
             PlasmaComponents.ToolButton {
                 hoverEnabled: true
-                icon.name: "view-refresh"
+                icon.source: Qt.resolvedUrl("../images/icons/refresh.svg")
                 Controls.ToolTip.visible: hovered
                 Controls.ToolTip.text: i18n("Reiniciar")
                 onClicked: delegate.requestAction(delegate.container.name, "restart")
@@ -114,7 +114,7 @@ Item {
 
             PlasmaComponents.ToolButton {
                 hoverEnabled: true
-                icon.name: "edit-delete"
+                icon.source: Qt.resolvedUrl("../images/icons/trash.svg")
                 Controls.ToolTip.visible: hovered
                 Controls.ToolTip.text: i18n("Eliminar")
                 onClicked: delegate.requestAction(delegate.container.name, "remove")

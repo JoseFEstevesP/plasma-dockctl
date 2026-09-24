@@ -5,6 +5,7 @@ import org.kde.kirigami as Kirigami
 import org.kde.plasma.core as PlasmaCore
 import org.kde.plasma.components as PlasmaComponents
 import org.kde.plasma.plasmoid
+import "DockStyle.js" as DS
 
 PlasmoidItem {
     id: root
@@ -48,7 +49,7 @@ PlasmoidItem {
         id: popupBody
         implicitWidth: 430
         clip: true
-        color: "transparent"
+        color: DS.cardBg
 
         readonly property int marginTotal: Kirigami.Units.largeSpacing * 2
         readonly property int sepHeight: Kirigami.Units.smallSpacing * 2
@@ -66,50 +67,57 @@ PlasmoidItem {
             anchors.margins: Kirigami.Units.largeSpacing
             spacing: Kirigami.Units.smallSpacing
 
-            RowLayout {
-                id: headerRow
+            Rectangle {
                 Layout.fillWidth: true
-                spacing: Kirigami.Units.smallSpacing
+                Layout.preferredHeight: headerRow.implicitHeight + Kirigami.Units.smallSpacing
+                color: DS.headerBg
+                radius: 4
 
-                Kirigami.Icon {
-                    Layout.alignment: Qt.AlignVCenter
-                    Layout.preferredWidth: Kirigami.Units.iconSizes.smallMedium
-                    Layout.preferredHeight: Kirigami.Units.iconSizes.smallMedium
-                    source: Qt.resolvedUrl("../images/docker.svg")
-                }
+                RowLayout {
+                    id: headerRow
+                    anchors.fill: parent
+                    anchors.margins: Kirigami.Units.smallSpacing
+                    spacing: Kirigami.Units.smallSpacing
 
-                Text {
-                    text: i18n("Contenedores")
-                    font.bold: true
-                    color: Kirigami.Theme.textColor
-                    Layout.alignment: Qt.AlignVCenter
-                    Layout.fillWidth: true
-                    elide: Text.ElideRight
-                    font.pixelSize: Kirigami.Theme.defaultFont.pixelSize
-                }
+                    Kirigami.Icon {
+                        Layout.alignment: Qt.AlignVCenter
+                        Layout.preferredWidth: Kirigami.Units.iconSizes.smallMedium
+                        Layout.preferredHeight: Kirigami.Units.iconSizes.smallMedium
+                        source: Qt.resolvedUrl("../images/docker.svg")
+                    }
 
-                PlasmaComponents.ToolButton {
-                    hoverEnabled: true
-                    icon.name: "configure"
-                    Controls.ToolTip.visible: hovered
-                    Controls.ToolTip.text: i18n("Configurar widget")
-                    onClicked: Plasmoid.internalAction("configure").trigger()
-                }
+                    Text {
+                        text: i18n("Contenedores")
+                        font.bold: true
+                        color: DS.text
+                        Layout.alignment: Qt.AlignVCenter
+                        Layout.fillWidth: true
+                        elide: Text.ElideRight
+                        font.pixelSize: 13
+                    }
 
-                PlasmaComponents.ToolButton {
-                    hoverEnabled: true
-                    icon.name: "view-refresh"
-                    Controls.ToolTip.visible: hovered
-                    Controls.ToolTip.text: i18n("Actualizar")
-                    onClicked: root.fetchContainers()
+                    PlasmaComponents.ToolButton {
+                        hoverEnabled: true
+                        icon.source: Qt.resolvedUrl("../images/icons/gear.svg")
+                        Controls.ToolTip.visible: hovered
+                        Controls.ToolTip.text: i18n("Configurar widget")
+                        onClicked: Plasmoid.internalAction("configure").trigger()
+                    }
+
+                    PlasmaComponents.ToolButton {
+                        hoverEnabled: true
+                        icon.source: Qt.resolvedUrl("../images/icons/refresh.svg")
+                        Controls.ToolTip.visible: hovered
+                        Controls.ToolTip.text: i18n("Actualizar")
+                        onClicked: root.fetchContainers()
+                    }
                 }
             }
 
             Rectangle {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 1
-                color: Kirigami.Theme.textColor
-                opacity: 0.15
+                color: DS.divider
             }
 
             Item {
@@ -147,8 +155,7 @@ PlasmoidItem {
                             Text {
                                 anchors.centerIn: parent
                                 text: i18n("Cargando contenedores…")
-                                color: Kirigami.Theme.textColor
-                                opacity: 0.6
+                                color: DS.subText
                                 font.pixelSize: Kirigami.Theme.defaultFont.pixelSize
                             }
                         }
@@ -160,8 +167,7 @@ PlasmoidItem {
                             Text {
                                 anchors.centerIn: parent
                                 text: i18n("Sin contenedores")
-                                color: Kirigami.Theme.textColor
-                                opacity: 0.6
+                                color: DS.subText
                                 font.pixelSize: Kirigami.Theme.defaultFont.pixelSize
                             }
                         }
@@ -173,8 +179,7 @@ PlasmoidItem {
                             Text {
                                 anchors.centerIn: parent
                                 text: i18n("Ninguno en marcha")
-                                color: Kirigami.Theme.textColor
-                                opacity: 0.6
+                                color: DS.subText
                                 font.pixelSize: Kirigami.Theme.defaultFont.pixelSize
                             }
                         }
@@ -227,18 +232,20 @@ PlasmoidItem {
                     Layout.preferredWidth: Kirigami.Units.iconSizes.small
                     Layout.preferredHeight: Kirigami.Units.iconSizes.small
                     source: "dialog-error"
+                    color: DS.danger
                 }
 
                 Text {
                     text: root.lastError
-                    color: Kirigami.Theme.negativeTextColor
+                    color: DS.danger
                     Layout.fillWidth: true
                     wrapMode: Text.WordWrap
                     font.pixelSize: Kirigami.Theme.smallFont.pixelSize
                 }
 
-                PlasmaComponents.Button {
+                ChipButton {
                     text: i18n("Reintentar")
+                    accent: true
                     onClicked: root.fetchContainers()
                 }
             }
@@ -248,15 +255,13 @@ PlasmoidItem {
             id: busyOverlay
             anchors.fill: parent
             visible: root.busy
-            color: Qt.rgba(Kirigami.Theme.backgroundColor.r,
-                           Kirigami.Theme.backgroundColor.g,
-                           Kirigami.Theme.backgroundColor.b, 0.7)
+            color: Qt.rgba(0.082, 0.082, 0.086, 0.72)
             z: 10
 
             Text {
                 anchors.centerIn: parent
                 text: i18n("Ejecutando…")
-                color: Kirigami.Theme.textColor
+                color: DS.text
                 font.pixelSize: Kirigami.Theme.defaultFont.pixelSize
             }
         }
@@ -265,9 +270,7 @@ PlasmoidItem {
             id: confirmOverlay
             anchors.fill: parent
             visible: root.pendingConfirm !== null
-            color: Qt.rgba(Kirigami.Theme.backgroundColor.r,
-                           Kirigami.Theme.backgroundColor.g,
-                           Kirigami.Theme.backgroundColor.b, 0.94)
+            color: Qt.rgba(0.082, 0.082, 0.086, 0.96)
             z: 11
 
             ColumnLayout {
@@ -277,7 +280,7 @@ PlasmoidItem {
 
                 Text {
                     text: root.pendingConfirm ? root.pendingConfirm.title : ""
-                    color: Kirigami.Theme.textColor
+                    color: DS.text
                     font.bold: true
                     Layout.fillWidth: true
                     wrapMode: Text.WordWrap
@@ -286,7 +289,7 @@ PlasmoidItem {
 
                 Text {
                     text: root.pendingConfirm ? root.pendingConfirm.subtitle : ""
-                    color: Kirigami.Theme.negativeTextColor
+                    color: DS.danger
                     Layout.fillWidth: true
                     wrapMode: Text.WordWrap
                     font.pixelSize: Kirigami.Theme.smallFont.pixelSize
@@ -296,13 +299,14 @@ PlasmoidItem {
                     Layout.alignment: Qt.AlignRight
                     spacing: Kirigami.Units.smallSpacing
 
-                    PlasmaComponents.Button {
+                    ChipButton {
                         text: i18n("Cancelar")
                         onClicked: root.pendingConfirm = null
                     }
 
-                    PlasmaComponents.Button {
+                    ChipButton {
                         text: root.pendingConfirm ? root.pendingConfirm.confirmText : ""
+                        accent: true
                         onClicked: {
                             var pc = root.pendingConfirm;
                             root.pendingConfirm = null;

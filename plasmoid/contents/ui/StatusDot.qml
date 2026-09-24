@@ -1,5 +1,6 @@
 import QtQuick
 import org.kde.kirigami as Kirigami
+import "DockStyle.js" as DS
 
 Rectangle {
     id: dot
@@ -7,18 +8,17 @@ Rectangle {
     property bool running: false
     property string health: ""
 
-    width: Kirigami.Units.iconSizes.tiny
-    height: width
+    width: 11
+    height: 11
     radius: width / 2
 
     color: {
         if (dot.running) {
             if (dot.health && dot.health !== "healthy") {
-                return Kirigami.Theme.neutralTextColor;
+                return DS.orange;
             }
-            return Kirigami.Theme.positiveTextColor;
+            return DS.green;
         }
-        var base = Kirigami.Theme.textColor;
-        return Qt.rgba(base.r, base.g, base.b, 0.35);
+        return DS.grey;
     }
 }

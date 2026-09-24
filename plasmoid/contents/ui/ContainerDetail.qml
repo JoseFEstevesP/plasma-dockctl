@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
-import org.kde.plasma.components as PlasmaComponents
+import "DockStyle.js" as DS
 
 Item {
     id: detailPage
@@ -31,8 +31,7 @@ Item {
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 1
-            color: Kirigami.Theme.textColor
-            opacity: 0.15
+            color: DS.divider
         }
 
         Item {
@@ -44,8 +43,7 @@ Item {
                 anchors.centerIn: parent
                 visible: detailPage.loading
                 text: i18n("Cargando detalles…")
-                color: Kirigami.Theme.textColor
-                opacity: 0.6
+                color: DS.subText
                 font.pixelSize: Kirigami.Theme.defaultFont.pixelSize
             }
 
@@ -53,7 +51,7 @@ Item {
                 anchors.centerIn: parent
                 visible: !detailPage.loading && detailPage.error !== ""
                 text: detailPage.error
-                color: Kirigami.Theme.negativeTextColor
+                color: DS.danger
                 width: parent.width - Kirigami.Units.largeSpacing * 2
                 wrapMode: Text.WordWrap
                 horizontalAlignment: Text.AlignHCenter
@@ -85,21 +83,21 @@ Item {
                         }
 
                         Text {
-                                text: {
-                                    if (!detailPage.detailData) {
-                                        return "";
-                                    }
-                                    var d = detailPage.detailData;
-                                    var s = d.state || "";
-                                    if (d.health) {
-                                        s += "  ·  " + (d.health === "healthy" ? i18n("saludable") : d.health);
-                                    }
-                                    return s;
+                            text: {
+                                if (!detailPage.detailData) {
+                                    return "";
                                 }
-                                color: stateColor(detailPage.detailData)
-                                font.bold: true
-                                font.pixelSize: Kirigami.Theme.defaultFont.pixelSize
+                                var d = detailPage.detailData;
+                                var s = d.state || "";
+                                if (d.health) {
+                                    s += "  ·  " + (d.health === "healthy" ? i18n("saludable") : d.health);
+                                }
+                                return s;
                             }
+                            color: stateColor(detailPage.detailData)
+                            font.bold: true
+                            font.pixelSize: 13
+                        }
                     }
 
                     InfoLine { label: i18n("Imagen"); value: detailPage.detailData ? detailPage.detailData.image : "" }
@@ -111,8 +109,7 @@ Item {
                     Text {
                         visible: detailPage.detailData && (detailPage.detailData.ips || []).length === 0
                         text: i18n("Sin IP de red propia")
-                        color: Kirigami.Theme.textColor
-                        opacity: 0.5
+                        color: DS.subText
                         font.pixelSize: Kirigami.Theme.smallFont.pixelSize
                     }
 
@@ -128,7 +125,7 @@ Item {
                         visible: detailPage.detailData && (detailPage.detailData.ports || []).length > 0
                         text: i18n("Puertos")
                         font.bold: true
-                        color: Kirigami.Theme.textColor
+                        color: DS.text
                         font.pixelSize: Kirigami.Theme.smallFont.pixelSize
                         Layout.topMargin: 4
                     }
@@ -144,8 +141,7 @@ Item {
                     Text {
                         visible: detailPage.detailData && (detailPage.detailData.ports || []).length === 0
                         text: i18n("Sin puertos publicados")
-                        color: Kirigami.Theme.textColor
-                        opacity: 0.5
+                        color: DS.subText
                         font.pixelSize: Kirigami.Theme.smallFont.pixelSize
                     }
 
@@ -155,34 +151,35 @@ Item {
                         Layout.fillWidth: true
                         spacing: Kirigami.Units.smallSpacing
 
-                        PlasmaComponents.Button {
+                        ChipButton {
                             text: detailPage.detailData && detailPage.detailData.running
                                     ? i18n("Parar")
                                     : i18n("Iniciar")
-                            icon.name: detailPage.detailData && detailPage.detailData.running
-                                        ? "media-playback-stop"
-                                        : "media-playback-start"
+                            icon: detailPage.detailData && detailPage.detailData.running
+                                        ? Qt.resolvedUrl("../images/icons/stop.svg")
+                                        : Qt.resolvedUrl("../images/icons/play.svg")
+                            accent: true
                             onClicked: detailPage.requestAction(detailPage.container.name,
                                 detailPage.detailData && detailPage.detailData.running ? "stop" : "start")
                         }
 
-                        PlasmaComponents.Button {
+                        ChipButton {
                             text: i18n("Reiniciar")
-                            icon.name: "view-refresh"
+                            icon: Qt.resolvedUrl("../images/icons/refresh.svg")
                             onClicked: detailPage.requestAction(detailPage.container.name, "restart")
                         }
 
-                        PlasmaComponents.Button {
+                        ChipButton {
                             text: i18n("Eliminar")
-                            icon.name: "edit-delete"
+                            icon: Qt.resolvedUrl("../images/icons/trash.svg")
                             onClicked: detailPage.requestAction(detailPage.container.name, "remove")
                         }
 
                         Item { Layout.fillWidth: true }
 
-                        PlasmaComponents.Button {
+                        ChipButton {
                             text: i18n("Ver logs")
-                            icon.name: "text-x-generic"
+                            icon: Qt.resolvedUrl("../images/icons/logs.svg")
                             onClicked: detailPage.openLogs(detailPage.container.name)
                         }
                     }
@@ -193,16 +190,15 @@ Item {
 
     function stateColor(d) {
         if (!d) {
-            return Kirigami.Theme.textColor;
+            return DS.subText;
         }
         if (d.running) {
             if (d.health && d.health !== "healthy") {
-                return Kirigami.Theme.neutralTextColor;
+                return DS.warn;
             }
-            return Kirigami.Theme.positiveTextColor;
+            return DS.green;
         }
-        var base = Kirigami.Theme.textColor;
-        return Qt.rgba(base.r, base.g, base.b, 0.45);
+        return DS.subText;
     }
 
     component InfoLine: RowLayout {
@@ -213,20 +209,19 @@ Item {
 
         Text {
             text: parent && parent.label
-            width: Kirigami.Units.gridUnit * 9
+            width: 72
             elide: Text.ElideRight
-            color: Kirigami.Theme.textColor
-            opacity: 0.6
-            font.pixelSize: Kirigami.Theme.smallFont.pixelSize
+            color: DS.subText
+            font.pixelSize: 11
         }
 
         Text {
             text: parent && parent.value
             Layout.fillWidth: true
             wrapMode: Text.Wrap
-            color: Kirigami.Theme.textColor
+            color: DS.text
             font.bold: true
-            font.pixelSize: Kirigami.Theme.smallFont.pixelSize
+            font.pixelSize: 11
         }
     }
 }

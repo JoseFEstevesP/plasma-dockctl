@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Controls as Controls
 import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
-import org.kde.plasma.components as PlasmaComponents
+import "DockStyle.js" as DS
 
 Item {
     id: logPage
@@ -31,13 +31,6 @@ Item {
         clipSource.copy();
     }
 
-    function colorString(c) {
-        return "#"
-            + Math.round(c.r * 255).toString(16).padStart(2, "0")
-            + Math.round(c.g * 255).toString(16).padStart(2, "0")
-            + Math.round(c.b * 255).toString(16).padStart(2, "0");
-    }
-
     function esc(s) {
         return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
@@ -47,17 +40,17 @@ Item {
         var lines = raw.split("\n");
         for (var i = 0; i < lines.length; i++) {
             var lower = lines[i].toLowerCase();
-            var color = "";
-            if (lower.indexOf("error") >= 0 || lower.indexOf("traceback") >= 0) {
-                color = colorString(Kirigami.Theme.negativeTextColor);
+            var color = DS.subText;
+            if (lower.indexOf("error") >= 0 || lower.indexOf("traceback") >= 0 || lower.indexOf("fatal") >= 0) {
+                color = DS.danger;
             } else if (lower.indexOf("warn") >= 0) {
-                color = colorString(Kirigami.Theme.neutralTextColor);
+                color = DS.warn;
             } else if (lower.indexOf("debug") >= 0) {
-                color = colorString(Kirigami.Theme.highlightColor);
+                color = DS.debug;
+            } else if (lower.indexOf("info") >= 0) {
+                color = DS.info;
             }
-            out += (color !== "")
-                ? "<span style=\"color:" + color + "\">" + esc(lines[i]) + "</span>\n"
-                : esc(lines[i]) + "\n";
+            out += "<span style=\"color:" + color + "\">" + esc(lines[i]) + "</span>\n";
         }
         return out;
     }
@@ -73,16 +66,17 @@ Item {
             onBack: logPage.back()
             onRefreshRequested: logPage.refreshRequested()
 
-            PlasmaComponents.Button {
+            ChipButton {
                 text: i18n("Actualizar")
-                icon.name: "view-refresh"
+                icon: Qt.resolvedUrl("../images/icons/refresh.svg")
                 onClicked: logPage.refreshRequested()
             }
 
-            PlasmaComponents.Button {
+            ChipButton {
                 text: i18n("Copiar")
-                icon.name: "edit-copy"
+                icon: Qt.resolvedUrl("../images/icons/copy.svg")
                 enabled: logPage.logs !== ""
+                accent: true
                 onClicked: logPage.copyLogs()
             }
         }
@@ -90,8 +84,7 @@ Item {
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 1
-            color: Kirigami.Theme.textColor
-            opacity: 0.15
+            color: DS.divider
         }
 
         Item {
@@ -102,8 +95,7 @@ Item {
                 anchors.centerIn: parent
                 visible: logPage.loading
                 text: i18n("Cargando logs…")
-                color: Kirigami.Theme.textColor
-                opacity: 0.6
+                color: DS.subText
                 font.pixelSize: Kirigami.Theme.defaultFont.pixelSize
             }
 
@@ -111,7 +103,7 @@ Item {
                 anchors.centerIn: parent
                 visible: !logPage.loading && logPage.error !== ""
                 text: logPage.error
-                color: Kirigami.Theme.negativeTextColor
+                color: DS.danger
                 width: parent.width - Kirigami.Units.largeSpacing * 2
                 wrapMode: Text.WordWrap
                 horizontalAlignment: Text.AlignHCenter
@@ -122,8 +114,7 @@ Item {
                 anchors.centerIn: parent
                 visible: !logPage.loading && logPage.error === "" && logPage.logs === ""
                 text: i18n("Sin logs")
-                color: Kirigami.Theme.textColor
-                opacity: 0.6
+                color: DS.subText
                 font.pixelSize: Kirigami.Theme.defaultFont.pixelSize
             }
 
@@ -131,10 +122,8 @@ Item {
                 anchors.fill: parent
                 visible: !logPage.loading && logPage.error === "" && logPage.logs !== ""
                 radius: Kirigami.Units.smallSpacing
-                color: Kirigami.Theme.alternateBackgroundColor
-                border.color: Qt.rgba(Kirigami.Theme.textColor.r,
-                                      Kirigami.Theme.textColor.g,
-                                      Kirigami.Theme.textColor.b, 0.18)
+                color: DS.logBg
+                border.color: DS.logBorder
 
                 Controls.ScrollView {
                     anchors.fill: parent
@@ -145,9 +134,9 @@ Item {
                         textFormat: TextEdit.RichText
                         readOnly: true
                         wrapMode: TextEdit.NoWrap
-                        color: Kirigami.Theme.textColor
-                        selectionColor: Kirigami.Theme.highlightColor
-                        selectedTextColor: Kirigami.Theme.highlightedTextColor
+                        color: DS.subText
+                        selectionColor: DS.accent
+                        selectedTextColor: DS.accentText
                         font.family: "monospace"
                         font.pixelSize: Kirigami.Theme.smallFont.pixelSize
                         background: null
