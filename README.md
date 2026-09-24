@@ -37,8 +37,7 @@ kpackagetool6 -t Plasma/Applet -i org.gato99.dockctl.plasmoid
 
 ## Capturas
 
-Vista principal, detalle de stack, detalle de contenedor, visor de logs y
-la entrada del widget en "Añadir widgets" (con el icono de Docker):
+Vista principal, detalle de stack, detalle de contenedor y visor de logs:
 
 ![Vista principal](docs/screenshots/vista-principal.png)
 
@@ -47,8 +46,6 @@ la entrada del widget en "Añadir widgets" (con el icono de Docker):
 ![Detalle de contenedor](docs/screenshots/vista-detalle.png)
 
 ![Visor de logs](docs/screenshots/vista-logs.png)
-
-![Añadir widgets · icono](docs/screenshots/anadir.png)
 
 ## Arquitectura
 
