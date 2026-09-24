@@ -1,0 +1,14 @@
+[Unit]
+Description=Backend HTTP para el widget Docker de la barra
+After=docker.service
+Wants=docker.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 %h/.local/share/dockctl/backend.py
+Restart=on-failure
+RestartSec=3
+Environment=DOCKCTL_PORT=8427
+
+[Install]
+WantedBy=default.target

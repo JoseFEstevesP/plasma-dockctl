@@ -1,0 +1,20 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "gato99@local",
+                "Name": "gato99"
+            }
+        ],
+        "Category": "System Information",
+        "Description": "Ver y gestionar los contenedores Docker desde la barra",
+        "EnabledByDefault": true,
+        "Id": "org.gato99.dockctl",
+        "Icon": "system-run",
+        "License": "GPL-3.0",
+        "Name": "Contenedores Docker",
+        "Version": "1.0"
+    },
+    "KPackageStructure": "Plasma/Applet",
+    "X-Plasma-API-Minimum-Version": "6.0"
+}
