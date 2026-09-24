@@ -2,7 +2,6 @@ import QtQuick
 import QtQuick.Controls as Controls
 import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
-import org.kde.plasma.components as PlasmaComponents
 import "DockStyle.js" as DS
 
 Item {
@@ -86,37 +85,29 @@ Item {
             spacing: 1
             Layout.alignment: Qt.AlignVCenter
 
-            PlasmaComponents.ToolButton {
+            IconButton {
                 visible: delegate.container.running
-                hoverEnabled: true
-                icon.source: Qt.resolvedUrl("../images/icons/stop.svg")
-                Controls.ToolTip.visible: hovered
-                Controls.ToolTip.text: i18n("Parar")
+                icon: Qt.resolvedUrl("../images/icons/stop.svg")
+                tooltip: i18n("Parar")
                 onClicked: delegate.requestAction(delegate.container.name, "stop")
             }
 
-            PlasmaComponents.ToolButton {
+            IconButton {
                 visible: !delegate.container.running
-                hoverEnabled: true
-                icon.source: Qt.resolvedUrl("../images/icons/play.svg")
-                Controls.ToolTip.visible: hovered
-                Controls.ToolTip.text: i18n("Iniciar")
+                icon: Qt.resolvedUrl("../images/icons/play.svg")
+                tooltip: i18n("Iniciar")
                 onClicked: delegate.requestAction(delegate.container.name, "start")
             }
 
-            PlasmaComponents.ToolButton {
-                hoverEnabled: true
-                icon.source: Qt.resolvedUrl("../images/icons/refresh.svg")
-                Controls.ToolTip.visible: hovered
-                Controls.ToolTip.text: i18n("Reiniciar")
+            IconButton {
+                icon: Qt.resolvedUrl("../images/icons/refresh.svg")
+                tooltip: i18n("Reiniciar")
                 onClicked: delegate.requestAction(delegate.container.name, "restart")
             }
 
-            PlasmaComponents.ToolButton {
-                hoverEnabled: true
-                icon.source: Qt.resolvedUrl("../images/icons/trash.svg")
-                Controls.ToolTip.visible: hovered
-                Controls.ToolTip.text: i18n("Eliminar")
+            IconButton {
+                icon: Qt.resolvedUrl("../images/icons/trash.svg")
+                tooltip: i18n("Eliminar")
                 onClicked: delegate.requestAction(delegate.container.name, "remove")
             }
         }

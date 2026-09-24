@@ -1,9 +1,7 @@
 import QtQuick
-import QtQuick.Controls as Controls
 import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
 import org.kde.plasma.core as PlasmaCore
-import org.kde.plasma.components as PlasmaComponents
 import org.kde.plasma.plasmoid
 import "DockStyle.js" as DS
 
@@ -45,11 +43,16 @@ PlasmoidItem {
 
     compactRepresentation: CompactRepresentation {}
 
+    Plasmoid.backgroundHints: PlasmaCore.Types.NoBackground
+
     fullRepresentation: Rectangle {
         id: popupBody
         implicitWidth: 430
         clip: true
         color: DS.cardBg
+        radius: 8
+        border.width: 1
+        border.color: DS.border
 
         readonly property int marginTotal: Kirigami.Units.largeSpacing * 2
         readonly property int sepHeight: Kirigami.Units.smallSpacing * 2
@@ -96,19 +99,15 @@ PlasmoidItem {
                         font.pixelSize: 13
                     }
 
-                    PlasmaComponents.ToolButton {
-                        hoverEnabled: true
-                        icon.source: Qt.resolvedUrl("../images/icons/gear.svg")
-                        Controls.ToolTip.visible: hovered
-                        Controls.ToolTip.text: i18n("Configurar widget")
+IconButton {
+                        icon: Qt.resolvedUrl("../images/icons/gear.svg")
+                        tooltip: i18n("Configurar widget")
                         onClicked: Plasmoid.internalAction("configure").trigger()
                     }
 
-                    PlasmaComponents.ToolButton {
-                        hoverEnabled: true
-                        icon.source: Qt.resolvedUrl("../images/icons/refresh.svg")
-                        Controls.ToolTip.visible: hovered
-                        Controls.ToolTip.text: i18n("Actualizar")
+IconButton {
+                        icon: Qt.resolvedUrl("../images/icons/refresh.svg")
+                        tooltip: i18n("Actualizar")
                         onClicked: root.fetchContainers()
                     }
                 }

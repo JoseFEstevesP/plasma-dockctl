@@ -31,28 +31,25 @@ Item {
         clipSource.copy();
     }
 
-    function esc(s) {
-        return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    }
-
-    function renderLogs(raw) {
-        var out = "";
+    function tokens() {
+        var arr = [];
+        var raw = String(logPage.logs).replace(/\u001b\[[0-9;]*m/g, "");
         var lines = raw.split("\n");
         for (var i = 0; i < lines.length; i++) {
             var lower = lines[i].toLowerCase();
-            var color = DS.subText;
+            var c = "#d0d4da";
             if (lower.indexOf("error") >= 0 || lower.indexOf("traceback") >= 0 || lower.indexOf("fatal") >= 0) {
-                color = DS.danger;
+                c = DS.danger;
             } else if (lower.indexOf("warn") >= 0) {
-                color = DS.warn;
+                c = DS.warn;
             } else if (lower.indexOf("debug") >= 0) {
-                color = DS.debug;
+                c = DS.debug;
             } else if (lower.indexOf("info") >= 0) {
-                color = DS.info;
+                c = DS.info;
             }
-            out += "<span style=\"color:" + color + "\">" + esc(lines[i]) + "</span>\n";
+            arr.push({ color: c, text: lines[i] });
         }
-        return out;
+        return arr;
     }
 
     ColumnLayout {
@@ -124,22 +121,31 @@ Item {
                 radius: Kirigami.Units.smallSpacing
                 color: DS.logBg
                 border.color: DS.logBorder
+                clip: true
 
-                Controls.ScrollView {
+                ListView {
+                    id: logList
                     anchors.fill: parent
                     anchors.margins: Kirigami.Units.smallSpacing
+                    anchors.rightMargin: Kirigami.Units.smallSpacing - 2
+                    clip: true
+                    spacing: 1
+                    model: logPage.tokens()
 
-                    Controls.TextArea {
-                        text: logPage.renderLogs(logPage.logs)
-                        textFormat: TextEdit.RichText
-                        readOnly: true
-                        wrapMode: TextEdit.NoWrap
-                        color: DS.subText
-                        selectionColor: DS.accent
-                        selectedTextColor: DS.accentText
+                    Controls.ScrollBar.vertical: Controls.ScrollBar {
+                        policy: Controls.ScrollBar.AsNeeded
+                        width: 4
+                        anchors.margins: 1
+                    }
+
+                    delegate: Text {
+                        width: logList.width - Kirigami.Units.largeSpacing
+                        color: modelData.color
+                        text: modelData.text
                         font.family: "monospace"
                         font.pixelSize: Kirigami.Theme.smallFont.pixelSize
-                        background: null
+                        wrapMode: Text.Wrap
+                        lineHeight: 1.25
                     }
                 }
             }

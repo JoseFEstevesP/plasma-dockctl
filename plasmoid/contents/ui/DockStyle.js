@@ -1,9 +1,10 @@
 .pragma library
 
 var cardBg = "#151516";
+var border = Qt.rgba(1, 1, 1, 0.08);
 var headerBg = Qt.rgba(1, 1, 1, 0.04);
 var rowHover = Qt.rgba(1, 1, 1, 0.06);
-var divider = Qt.rgba(1, 1, 1, 0.12);
+var divider = Qt.rgba(1, 1, 1, 0.10);
 var chipBg = Qt.rgba(1, 1, 1, 0.06);
 var chipHover = Qt.rgba(1, 1, 1, 0.10);
 var fieldBg = "#232329";

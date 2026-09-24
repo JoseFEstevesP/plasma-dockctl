@@ -2,7 +2,6 @@ import QtQuick
 import QtQuick.Controls as Controls
 import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
-import org.kde.plasma.components as PlasmaComponents
 import "DockStyle.js" as DS
 
 RowLayout {
@@ -21,11 +20,9 @@ RowLayout {
     Layout.fillWidth: true
     spacing: Kirigami.Units.smallSpacing
 
-    PlasmaComponents.ToolButton {
-        hoverEnabled: true
-        icon.source: Qt.resolvedUrl("../images/icons/chevron-left.svg")
-        Controls.ToolTip.visible: hovered
-        Controls.ToolTip.text: header.backTooltip
+    IconButton {
+        icon: Qt.resolvedUrl("../images/icons/chevron-left.svg")
+        tooltip: header.backTooltip
         onClicked: header.back()
     }
 
@@ -38,11 +35,9 @@ RowLayout {
         font.pixelSize: 13
     }
 
-    PlasmaComponents.ToolButton {
-        hoverEnabled: true
-        icon.source: Qt.resolvedUrl("../images/icons/refresh.svg")
-        Controls.ToolTip.visible: hovered
-        Controls.ToolTip.text: header.refreshTooltip
+    IconButton {
+        icon: Qt.resolvedUrl("../images/icons/refresh.svg")
+        tooltip: header.refreshTooltip
         visible: header.showRefresh
         onClicked: header.refreshRequested()
     }
