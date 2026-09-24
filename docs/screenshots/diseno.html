@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>dockctl · diseño</title>
+<style>
+  :root {
+    --card: #151516;
+    --head: rgba(255,255,255,0.04);
+    --row: rgba(255,255,255,0.06);
+    --div: rgba(255,255,255,0.12);
+    --chip: rgba(255,255,255,0.06);
+    --chiphov: rgba(255,255,255,0.10);
+    --txt: #f3f4f6;
+    --sub: #9aa0a6;
+    --fnt: #6b7280;
+    --accent: #2e7fb8;
+    --green: #3dd68c;
+    --orange: #f5a623;
+    --grey: #5f6672;
+    --logbg: #0d0d0d;
+    --bannerbg: #143a52;
+    --bannerb: #28597a;
+    --bannerfg: #c6e7ff;
+    --radius: 6px;
+    --rowpy: 5px;
+    --rowpx: 8px;
+    --namesz: 13px;
+    --sizesz: 11px;
+    --titlesz: 12px;
+    --dot: 11px;
+    --chipy: 26px;
+    --gsp: 2px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Noto Sans", "DejaVu Sans", sans-serif; }
+  body { background: #0b0b0c; color: #e7e9ee; padding: 28px 34px; }
+  h1 { font-size: 16px; margin-bottom: 18px; color: #fff; }
+  .wrap { display: flex; gap: 34px; align-items: flex-start; }
+
+  .pop { width: 432px; background: var(--card); border-radius: var(--radius);
+         border: 1px solid rgba(255,255,255,0.08);
+         box-shadow: 0 12px 34px rgba(0,0,0,0.65); overflow: hidden; }
+  .head { display: flex; align-items: center; gap: 8px; padding: 7px 10px; background: var(--head); }
+  .head .title { flex: 1; font-size: 13px; font-weight: 700; color: var(--txt); }
+  .ico { width: 18px; height: 18px; color: #d7d9de; }
+  .ico svg { width: 100%; height: 100%; }
+  .body { padding: 4px 6px 7px; }
+  .gtitle { display: flex; align-items: center; gap: 6px; padding: 2px 6px; font-size: var(--titlesz);
+            color: var(--sub); font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+  .gtitle .cnt { color: var(--fnt); margin-left: auto; }
+  .row { display: flex; align-items: center; gap: 8px; padding: var(--rowpy) var(--rowpx); border-radius: 5px; }
+  .dot { width: var(--dot); height: var(--dot); border-radius: 50%; flex: none; }
+  .dot.g { background: var(--green); } .dot.o { background: var(--orange); } .dot.n { background: var(--grey); }
+  .rname { font-size: var(--namesz); color: var(--txt); font-weight: 600; }
+  .rimg { font-size: var(--sizesz); color: var(--sub); margin-top: 1px; }
+  .rstat { font-size: var(--sizesz); color: var(--sub); }
+  .spacer { flex: 1; }
+  .acts { color: #8b919b; font-size: var(--sizesz); letter-spacing: 3px; display:flex; gap:4px; align-items:center; }
+  .acts svg { width: 14px; height: 14px; color:#b6bac2; }
+  .sep { height: 1px; background: var(--div); margin: 5px 6px; }
+  .chips { display:flex; gap:6px; }
+  .chip { height: var(--chipy); padding: 0 10px; border-radius: 4px; display:inline-flex; align-items:center;
+          gap:5px; font-size: 12px; color: var(--txt); background: var(--chip); }
+  .chip.acc { background: var(--accent); color:#fff; }
+  .chip svg { width: 13px; height: 13px; }
+
+  .panel { width: 300px; background: #17171a; border: 1px solid rgba(255,255,255,0.08);
+           border-radius: 8px; padding: 16px 16px 20px; }
+  .panel h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .6px; color: #9aa0a6; margin: 14px 0 6px; }
+  .panel h2:first-child { margin-top: 0; }
+  .ctl { display: flex; align-items: center; gap: 8px; margin: 5px 0; font-size: 12px; color: #d7d9de; }
+  .ctl label { width: 104px; flex: none; }
+  .ctl input[type=number] { width: 56px; background:#232329; color:#fff; border:1px solid #3a3a40; border-radius:4px; padding:2px 4px; }
+  .ctl input[type=color] { width: 30px; height: 22px; border:0; background:none; cursor:pointer; padding:0; }
+  textarea { width: 100%; height: 170px; margin-top: 10px; background:#0d0d0d; color:#a8e6a3; border:1px solid #3a3a40;
+             border-radius: 4px; font-family: monospace; font-size: 11px; padding: 8px; }
+  .btn { display:inline-flex; margin-top:6px; padding: 4px 12px; border-radius:4px; background:#2e7fb8; color:#fff;
+         cursor:pointer; font-size:12px; border:0; }
+  .btn:hover { background:#3b8fc9; }
+</style>
+</head>
+<body>
+<h1>dockctl · lienzo de diseño (ajusta y copia los valores)</h1>
+<div class="wrap">
+
+  <div class="pop" id="prev">
+    <div class="head">
+      <div class="ico"><svg viewBox="0 0 24 24"><path fill="#2496ed" d="M13.5 3.1c3.1-.0 7.1.4 9 2.1L21 9.6c-1.6-1.3-4-1.7-6.1-2.1-.8-.2-1.4-.6-2.4-.7-.4-.7-.6-2.7-.4-3.7zm-2.6.1c.2 1-.4 3-.3 3.7-4.2 1.1-8.5 2.4-8.9 6.9-.8-4.3 2-9.8 9.2-10.6zm9.2 6.5c.7.6 1.1 1.6 1.1 3.2-.4-1.9-2.1-2.6-4.1-3.4 4.3-.1 2.8 2.6 3 .2zM8.3 10.9c.5 0 .9.4.9.9s-.4.9-.9.9-.9-.4-.9-.9.4-.9.9-.9zm7.7 0c.5 0 .9.4.9.9s-.4.9-.9.9-.9-.4-.9-.9.4-.9.9-.9zM9 12.7l.4 1.5c1.5-.3 2.8-.3 4.3 0l.4-1.5c-1.7-.4-3.4-.4-5.1 0zM10 15h-1l.5 2c.5.1 1 0 1.5.1l-.5-2-.5-.1zm5 0-1 .1-.5 2c.6-.1 1-.0 1.5-.1l.6-1 1.2-1c.1-.7-.3-1-1-1l-1-1.3-1-.3v1l-.7.5-1.6-.5-1 .3-.7-.5v-1l-1 .3-1 1.3c-.7.0-1.1.3-1 1l1.2 1L8 15h-1l.7 2.3 1.6.5 1.4 2.5 1.4-2.5 1.6-.5L10 15zm5.6-1.4.3 1.4-1.5.6-.3 1.4 1.4.7-.4 1.2-1.5-.7-1.6.5c-.2.6.3 1 1.4 1.9l-.7 1.1c-1.2-.9-1.7-1.4-2.1-2.1-1 .9-2.9 2.6-3.4 1.3.8-.7.2-1.2-.2-1.3-1 .9-2.1 1.9-2.1.9.1-.7 1.1-1.2 1.1-2L8 17l.4-1.2-1.5-.7L7.3 14c1.4.3 2.1.1 2.5-.4l1-.2 1.1-2.2 1.1 2.2 1 .2c.3.5 1.1.7 2.5.4z"/></svg></div>
+      <div class="title">Contenedores</div>
+      <div class="ico"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="2.4"/><path d="M8 2.2v2M8 11.8v2M2.2 8h2M11.8 8h2M3.9 3.9l1.4 1.4M10.7 10.7l1.4 1.4M12.1 3.9l-1.4 1.4M5.3 10.7l-1.4 1.4"/></svg></div>
+      <div class="ico"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M14 8a6 6 0 1 1-1.6-4M14 3v3l-3-1"/></svg></div>
+    </div>
+    <div class="body">
+      <div class="gtitle">facturacionivss<span class="cnt">2 / 3</span></div>
+      <div class="row"><span class="dot g"></span><div><div class="rname">app</div></div><div class="spacer"></div><span class="rstat">Up 2 hours · 8080→80</span><span class="acts"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M4.5 3.2 12.5 8l-8 4.8z"/></svg><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M14 8a6 6 0 1 1-1.6-4M14 3v3l-3-1"/></svg><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5 5.2 13h5.6L12 5.5M2.8 5.5h10.4M6.4 5V3h3.2v2"/></svg></span></div>
+      <div class="row"><span class="dot g"></span><div><div class="rname">mysql</div></div><div class="spacer"></div><span class="rstat">Up 2 hours</span><span class="acts"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M4.5 3.2 12.5 8l-8 4.8z"/></svg><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M14 8a6 6 0 1 1-1.6-4M14 3v3l-3-1"/></svg><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5 5.2 13h5.6L12 5.5M2.8 5.5h10.4M6.4 5V3h3.2v2"/></svg></span></div>
+      <div class="sep"></div>
+      <div class="row" style="padding:8px 0"><span class="dot g"></span><div><div class="rname" style="font-size:13px">Detalle</div></div><div class="spacer"></div>
+        <div class="chips"><span class="chip acc"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M4.5 3.2 12.5 8l-8 4.8z"/></svg>Iniciar</span><span class="chip"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M14 8a6 6 0 1 1-1.6-4M14 3v3l-3-1"/></svg>Reiniciar</span><span class="chip">Logs</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Contenedor</h2>
+    <div class="ctl"><label>Fondo (card)</label><input type="color" id="cardC" value="#151516"><input type="text" id="cardT" value="#151516" size="8"></div>
+    <div class="ctl"><label>Cabecera</label><input type="color" id="headC" value="#1f1f23" style="width:30px"></div>
+    <div class="ctl"><label>Radio popup (px)</label><input type="number" id="radius" value="6" min="0" max="24"></div>
+    <div class="ctl"><label>Separador</label><input type="color" id="divC" value="#3f3f46"><span id="divT" style="color:#6b7280">0.24 alfa</span></div>
+    <h2>Filas</h2>
+    <div class="ctl"><label>Radio punto</label><input type="number" id="dot" value="11" min="6" max="16"></div>
+    <div class="ctl"><label>Padding fila (px)</label><input type="number" id="rowpy" value="5" min="0" max="16"></div>
+    <div class="ctl"><label>Márgenes (px)</label><input type="number" id="rowpx" value="8" min="0" max="16"></div>
+    <div class="ctl"><label>Nombre (px)</label><input type="number" id="namesz" value="13" min="9" max="22"></div>
+    <div class="ctl"><label>Secundario (px)</label><input type="number" id="sizesz" value="11" min="8" max="18"></div>
+    <h2>Títulos de grupo</h2>
+    <div class="ctl"><label>Tamaño (px)</label><input type="number" id="titlesz" value="12" min="8" max="18"></div>
+    <div class="ctl"><label>Espacio letras</label><input type="number" id="lsp" value="0.5" min="0" max="3" step="0.1"></div>
+    <h2>Chips</h2>
+    <div class="ctl"><label>Alto (px)</label><input type="number" id="chipy" value="26" min="18" max="40"></div>
+    <div class="ctl"><label>Radio (px)</label><input type="number" id="chipr" value="4" min="0" max="14"></div>
+    <h2>Colores</h2>
+    <div class="ctl"><label>Texto</label><input type="color" id="txtC" value="#f3f4f6"></div>
+    <div class="ctl"><label>Secundario</label><input type="color" id="subC" value="#9aa0a6"></div>
+    <div class="ctl"><label>Acento</label><input type="color" id="accC" value="#2e7fb8"></div>
+    <div class="ctl"><label>Verde</label><input type="color" id="grnC" value="#3dd68c"></div>
+    <div class="ctl"><label>Naranja</label><input type="color" id="orgC" value="#f5a623"></div>
+    <div class="ctl"><label>Gris apagado</label><input type="color" id="gryC" value="#5f6672"></div>
+    <button class="btn" id="gen">Generar DockStyle.js</button>
+    <div id="outw"><textarea id="out" readonly spellcheck="false"></textarea></div>
+    <button class="btn" id="copy">Copiar tokens</button>
+  </div>
+
+</div>
+<script>
+function $id(x){ return document.getElementById(x); }
+function hexToRgb(h){
+  h = h.replace('#','');
+  if(h.length===3){ h=h.split('').map(c=>c+c).join(''); }
+  return [parseInt(h.substr(0,2),16), parseInt(h.substr(2,2),16), parseInt(h.substr(4,2),16)];
+}
+function rgbstr(rgb, a){ return 'rgba('+rgb[0]+','+rgb[1]+','+rgb[2]+','+a+')'; }
+function sync(){
+  var s = document.querySelector('#prev').style;
+  var root = document.documentElement.style;
+  root.setProperty('--card', $id('cardT').value);
+  root.setProperty('--radius', $id('radius').value+'px');
+  root.setProperty('--dot', $id('dot').value+'px');
+  root.setProperty('--rowpy', $id('rowpy').value+'px');
+  root.setProperty('--rowpx', $id('rowpx').value+'px');
+  root.setProperty('--namesz', $id('namesz').value+'px');
+  root.setProperty('--sizesz', $id('sizesz').value+'px');
+  root.setProperty('--titlesz', $id('titlesz').value+'px');
+  root.setProperty('--chipy', $id('chipy').value+'px');
+  var lsp = parseFloat($id('lsp').value);
+  document.querySelectorAll('.gtitle').forEach(e=>e.style.letterSpacing = lsp+'px');
+  document.querySelectorAll('.chip').forEach(e=>e.style.borderRadius = $id('chipr').value+'px');
+  root.setProperty('--txt', $id('txtC').value);
+  root.setProperty('--sub', $id('subC').value);
+  root.setProperty('--accent', $id('accC').value);
+  root.setProperty('--green', $id('grnC').value);
+  root.setProperty('--orange', $id('orgC').value);
+  root.setProperty('--grey', $id('gryC').value);
+  root.setProperty('--head', rgbstr(hexToRgb($id('headC').value), 0.20));
+  root.setProperty('--div', rgbstr(hexToRgb($id('divC').value), 1));
+  genOut();
+}
+function genOut(){
+  var o = [];
+  o.push('var cardBg = ' + JSON.stringify($id('cardT').value) + ';');
+  o.push('var headerBg = Qt.rgba(' + hexToRgb($id('headC').value).slice(0,3).map(x=>(x/255).toFixed(3)).join(', ') + ', 1);');
+  o.push('var divider = Qt.rgba(' + hexToRgb($id('divC').value).map(x=>(x/255).toFixed(3)).join(', ') + ', 1);');
+  o.push('var dot = ' + $id('dot').value + ';');
+  o.push('var rowPaddingV = ' + $id('rowpy').value + ';');
+  o.push('var rowPaddingH = ' + $id('rowpx').value + ';');
+  o.push('var popupRadius = ' + $id('radius').value + ';');
+  o.push('var nameSize = ' + $id('namesz').value + ';');
+  o.push('var subSize = ' + $id('sizesz').value + ';');
+  o.push('var groupTitleSize = ' + $id('titlesz').value + ';');
+  o.push('var groupLetterSpacing = ' + parseFloat($id('lsp').value) + ';');
+  o.push('var chipHeight = ' + $id('chipy').value + ';');
+  o.push('var chipRadius = ' + $id('chipr').value + ';');
+  o.push('var text = ' + JSON.stringify($id('txtC').value) + ';');
+  o.push('var subText = ' + JSON.stringify($id('subC').value) + ';');
+  o.push('var accent = ' + JSON.stringify($id('accC').value) + ';');
+  o.push('var green = ' + JSON.stringify($id('grnC').value) + ';');
+  o.push('var orange = ' + JSON.stringify($id('orgC').value) + ';');
+  o.push('var grey = ' + JSON.stringify($id('gryC').value) + ';');
+  $id('out').value = o.join('\n');
+}
+document.querySelectorAll('.ctl input').forEach(el=>el.addEventListener('input', sync));
+$id('cardT').addEventListener('input', ()=>{ $id('cardC').value = /^#[0-9a-f]{6}$/i.test($id('cardT').value) ? $id('cardT').value : '#151516'; sync(); });
+$id('gen').addEventListener('click', ()=> genOut());
+$id('copy').addEventListener('click', ()=>{ $id('out').select(); document.execCommand('copy'); $id('copy').textContent='¡Copiado!'; setTimeout(()=>$id('copy').textContent='Copiar tokens', 1200); });
+sync();
+</script>
+</body>
+</html>

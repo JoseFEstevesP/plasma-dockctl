@@ -8,6 +8,20 @@ eliminar) y ver sus logs, todo sin abrir una terminal.
 ![Plasma 6](https://img.shields.io/badge/Plasma-6.0+-blue)
 ![Python](https://img.shields.io/badge/Python-3.9+-yellow)
 
+## Descargas
+
+La última versión se publica en la pestaña **Releases**: incluye el widget
+empaquetado (`.plasmoid`) y el código fuente comprimido (`.tar.gz` / `.zip`).
+
+[Ir a los releases](https://github.com/JoseFEstevesP/plasma-dockctl/releases)
+
+Instalación rápida con `gh`:
+
+```bash
+gh release download --repo JoseFEstevesP/plasma-dockctl --pattern "*.plasmoid"
+kpackagetool6 -t Plasma/Applet -i org.gato99.dockctl.plasmoid
+```
+
 ## Funcionalidades
 
 - Listado de contenedores agrupados por **stack** (docker compose) con estado
