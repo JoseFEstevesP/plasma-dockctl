@@ -106,8 +106,8 @@ Ejemplos:
 
 ```bash
 curl -s http://127.0.0.1:8427/api/containers | jq '.containers[] | {name, running, stack}'
-curl -s http://127.0.0.1:8427/api/containers/facturacionivss_app
-curl -s http://127.0.0.1:8427/api/stacks/webapp/restart -X POST
+curl -s http://127.0.0.1:8427/api/containers/mi_contenedor
+curl -s http://127.0.0.1:8427/api/stacks/mi_stack/restart -X POST
 ```
 
 Errores de Docker en `GET` responden `200` con `{"ok": false, "error": "..."}`
