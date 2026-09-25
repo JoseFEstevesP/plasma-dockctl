@@ -13,7 +13,7 @@
         "Icon": "docker",
         "License": "GPL-3.0",
         "Name": "Contenedores Docker",
-        "Version": "1.0"
+        "Version": "1.1"
     },
     "KPackageStructure": "Plasma/Applet",
     "X-Plasma-API-Minimum-Version": "6.0"
