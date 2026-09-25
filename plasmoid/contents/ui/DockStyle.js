@@ -29,6 +29,18 @@ var debug = "#c9a0ff";
 var logBg = "#0d0d0d";
 var logBorder = "#161616";
 
+var barBg = Qt.rgba(1, 1, 1, 0.09);
+
 var bannerBg = "#143a52";
 var bannerBorder = "#28597a";
 var bannerText = "#c6e7ff";
+
+function severityColor(severity) {
+    if (severity === "critical") {
+        return danger;
+    }
+    if (severity === "warn") {
+        return orange;
+    }
+    return subText;
+}

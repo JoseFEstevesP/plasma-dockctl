@@ -11,6 +11,9 @@ Rectangle {
     property bool accent: false
     property bool enabled: true
     property bool highlighted: false
+    property int maxTextWidth: 9999
+    property color iconColor: chip.accent ? DS.accentText
+        : (chip.enabled ? DS.subText : DS.faint)
 
     signal clicked()
 
@@ -37,9 +40,7 @@ Rectangle {
             Layout.preferredWidth: 13
             Layout.preferredHeight: 13
             source: chip.icon
-            color: chip.accent
-                ? DS.accentText
-                : (chip.enabled ? DS.subText : DS.faint)
+            color: chip.iconColor
         }
 
         Text {
@@ -48,6 +49,8 @@ Rectangle {
                 ? DS.accentText
                 : (chip.enabled ? DS.text : DS.faint)
             font.pixelSize: 12
+            elide: Text.ElideRight
+            Layout.maximumWidth: chip.maxTextWidth
             verticalAlignment: Text.AlignVCenter
         }
     }

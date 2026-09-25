@@ -41,6 +41,17 @@ PlasmoidItem {
     property bool logsLoading: false
     property string logsError: ""
 
+    property var statsMeta: null
+    property var statsList: []
+    property bool statsLoading: false
+    property string statsError: ""
+    property var analysis: null
+    property bool analysisLoading: false
+    property string analysisError: ""
+    property var topData: null
+    property bool topLoading: false
+    property string topError: ""
+
     compactRepresentation: CompactRepresentation {}
 
     Plasmoid.backgroundHints: PlasmaCore.Types.NoBackground
@@ -90,7 +101,7 @@ PlasmoidItem {
                     }
 
                     Text {
-                        text: i18n("Contenedores")
+                        text: root.headerTitle()
                         font.bold: true
                         color: DS.text
                         Layout.alignment: Qt.AlignVCenter
@@ -99,11 +110,36 @@ PlasmoidItem {
                         font.pixelSize: 13
                     }
 
-IconButton {
+                    ChipButton {
+                        id: statsChip
+                        visible: plasmoid.configuration.showStatsChip !== false
+                            && root.currentPage === 0 && root.statsMeta !== null
+                            && root.statsMeta.available === true
+                            && root.statsList.length > 0
+                        text: root.statsChipText()
+                        accent: true
+                        maxTextWidth: 130
+                        onClicked: root.openStats()
+                    }
+
+                    IconButton {
+                        icon: Qt.resolvedUrl("../images/icons/chart.svg")
+                        tooltip: i18n("Consumo")
+                        onClicked: root.openStats()
+                    }
+
+                    IconButton {
+                        icon: Qt.resolvedUrl("../images/icons/sparkle.svg")
+                        tooltip: i18n("Análisis")
+                        onClicked: root.openAnalysis()
+                    }
+
+                    IconButton {
                         icon: Qt.resolvedUrl("../images/icons/gear.svg")
                         tooltip: i18n("Configurar widget")
                         onClicked: Plasmoid.internalAction("configure").trigger()
                     }
+
 
 IconButton {
                         icon: Qt.resolvedUrl("../images/icons/refresh.svg")
@@ -196,9 +232,11 @@ IconButton {
                     onRefreshRequested: root.fetchDetail(root.currentContainer ? root.currentContainer.name : "")
                     onRequestAction: function(name, action) { root.requestAction(name, action); }
                     onOpenLogs: function(name) { root.openLogs(name); }
+                    onTopRequested: root.openTop()
                 }
 
                 LogsView {
+                    id: logsView
                     anchors.fill: parent
                     visible: root.currentPage === 2
                     containerName: root.currentContainer ? root.currentContainer.name : ""
@@ -218,6 +256,42 @@ IconButton {
                     onOpenDetail: function(name) { root.openDetail(name); }
                     onRequestAction: function(name, action) { root.requestAction(name, action); }
                     onRestartAll: root.requestRestartAll()
+                }
+
+                StatsView {
+                    anchors.fill: parent
+                    visible: root.currentPage === 4
+                    stats: root.statsList
+                    meta: root.statsMeta
+                    loading: root.statsLoading
+                    error: root.statsError
+                    onBack: root.currentPage = 0
+                    onRefreshRequested: root.fetchStats(true)
+                    onOpenDetail: function(name) { root.openDetail(name); }
+                }
+
+                AnalysisView {
+                    anchors.fill: parent
+                    visible: root.currentPage === 5
+                    analysis: root.analysis
+                    loading: root.analysisLoading
+                    error: root.analysisError
+                    onBack: root.currentPage = 0
+                    onRefreshRequested: root.fetchAnalysis(true)
+                    onRequestMaintain: function(target, title, subtitle, confirmText) {
+                        root.requestMaintain(target, title, subtitle, confirmText);
+                    }
+                }
+
+                TopView {
+                    anchors.fill: parent
+                    visible: root.currentPage === 6
+                    containerName: root.currentContainer ? root.currentContainer.name : ""
+                    processData: root.topData
+                    loading: root.topLoading
+                    error: root.topError
+                    onBack: root.currentPage = 1
+                    onRefreshRequested: root.fetchTop(true)
                 }
             }
 
@@ -327,6 +401,16 @@ IconButton {
         onTriggered: root.fetchContainers()
     }
 
+    // `docker stats` tarda ~2s: solo se mide con la página de consumo abierta
+    // y el backend cachea 10s para que pulsar a la vez no dispare dos procesos.
+    Timer {
+        id: statsTimer
+        interval: Math.max(5, Math.min(120, plasmoid.configuration.statsInterval || 10)) * 1000
+        repeat: true
+        running: root.expanded && root.currentPage === 4
+        onTriggered: root.fetchStats(false)
+    }
+
     Connections {
         target: plasmoid.configuration
         function onShowStoppedChanged() {
@@ -336,11 +420,15 @@ IconButton {
             root.backendUrl = "http://127.0.0.1:" + (plasmoid.configuration.backendPort || 8427);
             root.fetchContainers();
         }
+        function onStatsIntervalChanged() {
+            statsTimer.restart();
+        }
     }
 
     onExpandedChanged: {
         if (plasmoid.expanded) {
             root.fetchContainers();
+            root.fetchStats(false);
         }
     }
 
@@ -426,7 +514,7 @@ IconButton {
         root.detailError = "";
         var xhr = new XMLHttpRequest();
         xhr.open("GET", root.backendUrl + "/api/containers/" + encodeURIComponent(name));
-        xhr.timeout = 5000;
+        xhr.timeout = 20000;
         xhr.onreadystatechange = function() {
             if (xhr.readyState !== XMLHttpRequest.DONE) {
                 return;
@@ -463,6 +551,7 @@ IconButton {
     function openLogs(name) {
         root.logs = "";
         root.logsError = "";
+        logsView.levelFilter = "all";
         root.currentPage = 2;
         root.fetchLogs(name);
     }
@@ -475,7 +564,7 @@ IconButton {
         root.logsError = "";
         var xhr = new XMLHttpRequest();
         xhr.open("GET", root.backendUrl + "/api/containers/" + encodeURIComponent(name) + "/logs?lines=300");
-        xhr.timeout = 10000;
+        xhr.timeout = 30000;
         xhr.onreadystatechange = function() {
             if (xhr.readyState !== XMLHttpRequest.DONE) {
                 return;
@@ -512,7 +601,9 @@ IconButton {
     function fetchContainers() {
         var xhr = new XMLHttpRequest();
         xhr.open("GET", root.backendUrl + "/api/containers");
-        xhr.timeout = 3000;
+        // `docker ps -a` puede tardar 1-3 s si el dockerd va cargado: con 3 s de
+        // margen el widget se quedaba vacío sin avisar.
+        xhr.timeout = 15000;
         xhr.onreadystatechange = function() {
             if (xhr.readyState !== XMLHttpRequest.DONE) {
                 return;
@@ -554,6 +645,230 @@ IconButton {
         };
         xhr.onerror = function() {
             root.loading = false;
+            root.lastError = i18n("Sin conexión con el backend");
+        };
+        xhr.send();
+    }
+
+    function headerTitle() {
+        if (root.currentPage === 4) {
+            return i18n("Consumo");
+        }
+        if (root.currentPage === 5) {
+            return i18n("Análisis");
+        }
+        if (root.currentPage === 3 && root.currentStack) {
+            return root.currentStack.title;
+        }
+        if ((root.currentPage === 1 || root.currentPage === 2 || root.currentPage === 6)
+                && root.currentContainer) {
+            return root.currentContainer.name;
+        }
+        return i18n("Contenedores");
+    }
+
+    function statsChipText() {
+        if (!root.statsList || root.statsList.length === 0) {
+            return "";
+        }
+        var top = root.statsList[0];
+        var name = top.name || "";
+        if (name.length > 16) {
+            name = name.substring(0, 15) + "…";
+        }
+        return name + " " + (top.cpu || 0).toFixed(1) + " %";
+    }
+
+    function openStats() {
+        root.currentPage = 4;
+        root.fetchStats(false);
+    }
+
+    function openAnalysis() {
+        root.currentPage = 5;
+        root.fetchAnalysis(false);
+    }
+
+    function openTop() {
+        root.topData = null;
+        root.topError = "";
+        root.currentPage = 6;
+        root.fetchTop(false);
+    }
+
+    function fetchStats(force) {
+        if (root.statsLoading) {
+            return;
+        }
+        root.statsLoading = true;
+        var url = root.backendUrl + "/api/stats" + (force ? "?refresh=1" : "");
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", url);
+        xhr.timeout = 35000;
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState !== XMLHttpRequest.DONE) {
+                return;
+            }
+            root.statsLoading = false;
+            if (xhr.status !== 200) {
+                root.statsError = i18n("No se pudo medir el consumo");
+                return;
+            }
+            var d;
+            try {
+                d = JSON.parse(xhr.responseText);
+            } catch (err) {
+                root.statsError = i18n("Respuesta inválida");
+                return;
+            }
+            if (d.ok === false) {
+                root.statsError = d.error || i18n("Error del backend");
+                return;
+            }
+            root.statsError = "";
+            root.statsMeta = d;
+            root.statsList = d.stats || [];
+        };
+        xhr.ontimeout = function() {
+            root.statsLoading = false;
+            root.statsError = i18n("Tiempo de espera agotado");
+        };
+        xhr.onerror = function() {
+            root.statsLoading = false;
+            root.statsError = i18n("Sin conexión con el backend");
+        };
+        xhr.send();
+    }
+
+    function fetchAnalysis(force) {
+        if (root.analysisLoading) {
+            return;
+        }
+        root.analysisLoading = true;
+        var url = root.backendUrl + "/api/analysis" + (force ? "?refresh=1" : "");
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", url);
+        xhr.timeout = 90000;
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState !== XMLHttpRequest.DONE) {
+                return;
+            }
+            root.analysisLoading = false;
+            if (xhr.status !== 200) {
+                root.analysisError = i18n("No se pudo completar el análisis");
+                return;
+            }
+            var d;
+            try {
+                d = JSON.parse(xhr.responseText);
+            } catch (err) {
+                root.analysisError = i18n("Respuesta inválida");
+                return;
+            }
+            if (d.ok === false) {
+                root.analysisError = d.error || i18n("Error del backend");
+                return;
+            }
+            root.analysisError = "";
+            root.analysis = d;
+        };
+        xhr.ontimeout = function() {
+            root.analysisLoading = false;
+            root.analysisError = i18n("Tiempo de espera agotado");
+        };
+        xhr.onerror = function() {
+            root.analysisLoading = false;
+            root.analysisError = i18n("Sin conexión con el backend");
+        };
+        xhr.send();
+    }
+
+    function fetchTop(force) {
+        var name = root.currentContainer ? root.currentContainer.name : "";
+        if (!name) {
+            return;
+        }
+        root.topLoading = true;
+        root.topError = "";
+        var url = root.backendUrl + "/api/containers/" + encodeURIComponent(name) + "/top"
+            + (force ? "?refresh=1" : "");
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", url);
+        xhr.timeout = 20000;
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState !== XMLHttpRequest.DONE) {
+                return;
+            }
+            root.topLoading = false;
+            if (xhr.status !== 200) {
+                root.topError = i18n("No se pudieron leer los procesos");
+                return;
+            }
+            var d;
+            try {
+                d = JSON.parse(xhr.responseText);
+            } catch (err) {
+                root.topError = i18n("Respuesta inválida");
+                return;
+            }
+            if (d.ok === false) {
+                root.topError = d.error || i18n("Error del backend");
+                return;
+            }
+            root.topData = d.top || null;
+        };
+        xhr.ontimeout = function() {
+            root.topLoading = false;
+            root.topError = i18n("Tiempo de espera agotado");
+        };
+        xhr.onerror = function() {
+            root.topLoading = false;
+            root.topError = i18n("Sin conexión con el backend");
+        };
+        xhr.send();
+    }
+
+    function requestMaintain(target, title, subtitle, confirmText) {
+        if (root.busy) {
+            return;
+        }
+        root.pendingConfirm = {
+            title: title,
+            subtitle: subtitle,
+            confirmText: confirmText,
+            run: function() { root.doMaintain(target); }
+        };
+    }
+
+    function doMaintain(target) {
+        root.busy = true;
+        root.lastError = "";
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", root.backendUrl + "/api/maintain/" + encodeURIComponent(target));
+        xhr.timeout = 300000;
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState !== XMLHttpRequest.DONE) {
+                return;
+            }
+            root.busy = false;
+            var d = null;
+            try {
+                d = JSON.parse(xhr.responseText);
+            } catch (e) {}
+            if (xhr.status !== 200 || !d || d.ok === false) {
+                root.lastError = (d && d.error) || i18n("No se pudo completar la limpieza");
+            } else {
+                root.lastError = "";
+            }
+            root.fetchAnalysis(true);
+            root.fetchStats(true);
+        };
+        xhr.ontimeout = function() {
+            root.busy = false;
+            root.lastError = i18n("Tiempo de espera agotado");
+        };
+        xhr.onerror = function() {
+            root.busy = false;
             root.lastError = i18n("Sin conexión con el backend");
         };
         xhr.send();

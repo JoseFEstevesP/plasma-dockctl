@@ -13,10 +13,28 @@ Item {
     property bool loading: false
     property string error: ""
 
+    readonly property var diagnostics: (detailData && detailData.diagnostics)
+        ? detailData.diagnostics : []
+
+    readonly property string worstSeverity: {
+        var worst = "";
+        for (var i = 0; i < detailPage.diagnostics.length; i++) {
+            var sev = detailPage.diagnostics[i].severity || "";
+            if (sev === "critical") {
+                return "critical";
+            }
+            if (sev === "warn") {
+                worst = "warn";
+            }
+        }
+        return worst;
+    }
+
     signal back()
     signal refreshRequested()
     signal requestAction(string name, string action)
     signal openLogs(string name)
+    signal topRequested()
 
     ColumnLayout {
         anchors.fill: parent
@@ -80,6 +98,7 @@ Item {
                             anchors.verticalCenter: parent.verticalCenter
                             running: detailPage.detailData ? detailPage.detailData.running : false
                             health: detailPage.detailData ? detailPage.detailData.health : ""
+                            severity: detailPage.worstSeverity
                         }
 
                         Text {
@@ -97,6 +116,37 @@ Item {
                             color: stateColor(detailPage.detailData)
                             font.bold: true
                             font.pixelSize: 13
+                        }
+                    }
+
+                    Text {
+                        visible: detailPage.diagnostics.length > 0
+                        text: i18n("Diagnóstico")
+                        font.bold: true
+                        color: DS.text
+                        font.pixelSize: Kirigami.Theme.smallFont.pixelSize
+                        Layout.topMargin: 6
+                    }
+
+                    Repeater {
+                        model: detailPage.diagnostics
+
+                        delegate: RowLayout {
+                            required property var modelData
+                            Layout.fillWidth: true
+                            spacing: 6
+
+                            StatusDot {
+                                severity: modelData.severity
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: modelData.text
+                                color: DS.subText
+                                font.pixelSize: 11
+                                wrapMode: Text.Wrap
+                            }
                         }
                     }
 
@@ -176,6 +226,13 @@ Item {
                         }
 
                         Item { Layout.fillWidth: true }
+
+                        ChipButton {
+                            text: i18n("Procesos")
+                            icon: Qt.resolvedUrl("../images/icons/list.svg")
+                            visible: detailPage.detailData && detailPage.detailData.running
+                            onClicked: detailPage.topRequested()
+                        }
 
                         ChipButton {
                             text: i18n("Ver logs")

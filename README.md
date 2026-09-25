@@ -29,11 +29,49 @@ kpackagetool6 -t Plasma/Applet -i org.gato99.dockctl.plasmoid
 - Acciones rápidas por contenedor: `start`, `stop`, `restart`, `remove`.
 - Acción **"reiniciar todos"** por stack, con confirmación.
 - Detalle de contenedor: ips, redes, puertos, fecha de creación/inicio,
-  política de reinicio.
-- Visor de logs con scroll, botón **Actualizar** y **Copiar al portapapeles**.
+  política de reinicio y **diagnóstico** (salud degradada, reinicios en bucle,
+  puertos abiertos a la red local, falta de límites o de política de reinicio).
+- Visor de logs con scroll, botón **Actualizar**, **Copiar al portapapeles** y
+  filtro por nivel (**Todos**, **Avisos+**, **Errores**).
+- Procesos del contenedor (`docker top`) con lectura de CPU, memoria y comando.
+- Página de **Consumo**: qué contenedor gasta más CPU, RAM, red, disco o
+  procesos, ordenable por métrica y con barras comparativas.
+- Chip en la cabecera con el contenedor que más CPU está usando (configurable).
+- Página de **Análisis**: espacio en disco recuperable (imágenes, volúmenes,
+  caché de build) y hallazgos priorizados, con botones de limpieza que piden
+  confirmación.
 - Polling solo cuando el panel está abierto (silencioso en background).
 - Alterna entre vista compacta y ampliada desde el diálogo de configuración.
 - Icono compacto con el conteo de contenedores por stack.
+
+### Consumo y Análisis: por qué no saturan el sistema
+
+`docker stats` tarda unos 2 s y `docker system df` unos 5-8 s, así que ninguno
+de los dos se ejecuta en el bucle de refresco:
+
+- La **lista principal** sigue igual: solo `docker ps` (rápido) cada 5 s.
+- La página de **Consumo** mide por su cuenta según el intervalo configurado
+  (10 s por defecto) y el backend cachea 10 s, así que abrirla dos veces seguidas
+  no duplica el trabajo.
+- La página de **Análisis** usa una caché de 5 minutos; el botón de refresco
+  fuerza una medición real de todo.
+
+### Limpieza: qué se puede ejecutar y qué no
+
+Desde **Análisis** se puede liberar espacio con confirmación previa. Cada
+comando se muestra en el diálogo antes de ejecutarlo:
+
+| Botón | Comando | Nota |
+| --- | --- | --- |
+| Liberar caché de build | `docker builder prune -f` | Solo caché de compilación. |
+| Liberar sin etiqueta | `docker image prune -f` | Imágenes sin etiqueta. |
+| Liberar todas (agresivo) | `docker image prune -a -f` | También borra imágenes que no usa ningún contenedor: habrá que volver a descargarlas. |
+| Eliminar detenidos | `docker container prune -f` | Se pierden logs y configuración de los parados. |
+| Volúmenes sin usar | `docker volume prune` | **No se ejecuta**: el widget solo muestra el comando para copiarlo, porque los volúmenes pueden contener datos. |
+
+El backend acepta únicamente esos destinos; cualquier otro se rechaza con
+`400`, y los volúmenes se rechazan siempre.
+
 
 ## Capturas
 
@@ -129,8 +167,10 @@ Y desde el propio widget (icono de la llave inglesa del diálogo ampliado):
 | Opción | Descripción |
 | --- | --- |
 | Intervalo de refresco | Segundos entre consultas (mínimo 1). |
-| Confirmar reinicio de stacks | Pide confirmación al reiniciar todos los contenedores de un stack. |
+| Intervalo de medición de consumo | Segundos entre mediciones de la página de Consumo, de 5 a 120 (10 por defecto). |
+| Confirmar antes de eliminar un contenedor | Pide confirmación al eliminar. Las limpiezas de la página de Análisis piden confirmación siempre. |
 | Mostrar detenidos | Lista también los contenedores parados. |
+| Mostrar el contenedor que más CPU usa en la cabecera | Activa o oculta el chip de consumo. |
 | Puerto del backend | Debe coincidir con `port` del `config.ini`. |
 
 > NOTA: si cambias el puerto, cambia la variable de entorno `DOCKCTL_PORT`
@@ -144,31 +184,54 @@ Base: `http://127.0.0.1:8427`
 | Método | Ruta | Descripción |
 | --- | --- | --- |
 | `GET` | `/api/containers` | Lista de contenedores (running primero). |
-| `GET` | `/api/containers/:name` | Detalle: ips, redes, puertos, salud, fechas. |
+| `GET` | `/api/containers/:name` | Detalle: ips, redes, puertos, salud, fechas y diagnóstico. |
 | `GET` | `/api/containers/:name/logs?lines=N` | Logs (N entre 1 y 5000, default 300). |
+| `GET` | `/api/containers/:name/top` | Procesos del contenedor (`docker top`, 200 filas). |
+| `GET` | `/api/stats?refresh=1` | Consumo por contenedor (CPU, RAM, red, disco, pids). Cacheado 10 s. |
+| `GET` | `/api/analysis?refresh=1` | Espacio en disco y hallazgos. Cacheado 5 min. |
 | `POST` | `/api/containers/:name/start` | Inicia un contenedor. |
 | `POST` | `/api/containers/:name/stop` | Detiene un contenedor. |
 | `POST` | `/api/containers/:name/restart` | Reinicia un contenedor. |
 | `POST` | `/api/containers/:name/remove` | Elimina un contenedor (`docker rm -f`). |
 | `POST` | `/api/stacks/:name/restart` | Reinicia todos los contenedores de un stack. |
+| `POST` | `/api/maintain/:target` | Limpieza: `images-safe`, `images-all`, `containers`, `buildcache`. |
 
 Ejemplos:
 
 ```bash
 curl -s http://127.0.0.1:8427/api/containers | jq '.containers[] | {name, running, stack}'
-curl -s http://127.0.0.1:8427/api/containers/mi_contenedor
+curl -s http://127.0.0.1:8427/api/containers/mi_contenedor | jq '.detail.diagnostics'
+curl -s http://127.0.0.1:8427/api/stats | jq '{top, total}'
+curl -s http://127.0.0.1:8427/api/analysis | jq '.findings[] | {severity, title}'
 curl -s http://127.0.0.1:8427/api/stacks/mi_stack/restart -X POST
 ```
+
+`/api/maintain/volumes` responde siempre `400`: los volúmenes nunca se borran
+desde el widget. Los destinos fuera de la lista también se rechazan con `400`.
 
 Errores de Docker en `GET` responden `200` con `{"ok": false, "error": "..."}`
 (el widget los muestra en rojo); en `POST` responden `500`. Orígenes CORS no
 locales reciben `403`.
+
 
 ## Desarrollo
 
 ```bash
 # Tests del backend (no requieren docker real; se mockea el comando docker)
 python3 backend/test_backend.py
+
+# Comprobar el QML con el motor de Qt (compila todos los .qml e instancia las vistas)
+python3 -c "
+import os; os.environ.setdefault('QT_QPA_PLATFORM','offscreen')
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlComponent, QQmlEngine
+from PySide6.QtCore import QUrl
+app = QGuiApplication([]); e = QQmlEngine(); e.addImportPath('/usr/lib64/qt6/qml')
+import pathlib
+for p in sorted(pathlib.Path('plasmoid/contents/ui').glob('*.qml')):
+    c = QQmlComponent(e, QUrl.fromLocalFile(str(p.resolve())))
+    print('FALLA' if c.isError() else 'ok', p.name, [x.toString() for x in c.errors()])
+"
 
 # Instala/reinstala desde el repo
 ./install.sh
@@ -179,7 +242,7 @@ Estructura:
 ```
 plasma-dockctl/
 ├── plasmoid/            # El widget (metadata + contents/)
-│   └── contents/ui/     # main.qml, StackSection.qml, PageHeader.qml, ...
+│   └── contents/ui/     # main.qml, StatsView.qml, AnalysisView.qml, TopView.qml, ...
 ├── backend/
 │   ├── backend.py       # Servidor HTTP + capa docker
 │   └── test_backend.py
