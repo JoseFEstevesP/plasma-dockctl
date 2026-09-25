@@ -13,6 +13,12 @@ Item {
     property string logs: ""
     property bool loading: false
     property string error: ""
+    property string levelFilter: "all"
+    property var filterOptions: [
+        { key: "all", label: "Todos" },
+        { key: "problems", label: "Avisos+" },
+        { key: "errors", label: "Errores" }
+    ]
 
     signal back()
     signal refreshRequested()
@@ -31,25 +37,70 @@ Item {
         clipSource.copy();
     }
 
+    function levelOf(line) {
+        var lower = line.toLowerCase();
+        if (lower.indexOf("error") >= 0 || lower.indexOf("traceback") >= 0
+                || lower.indexOf("fatal") >= 0) {
+            return "error";
+        }
+        if (lower.indexOf("warn") >= 0) {
+            return "warn";
+        }
+        if (lower.indexOf("debug") >= 0 || lower.indexOf("trace") >= 0) {
+            return "debug";
+        }
+        if (lower.indexOf("info") >= 0) {
+            return "info";
+        }
+        return "plain";
+    }
+
+    function colorFor(level) {
+        if (level === "error") {
+            return DS.danger;
+        }
+        if (level === "warn") {
+            return DS.warn;
+        }
+        if (level === "debug") {
+            return DS.debug;
+        }
+        if (level === "info") {
+            return DS.info;
+        }
+        return "#d0d4da";
+    }
+
+    function keeps(level) {
+        if (logPage.levelFilter === "problems") {
+            return level === "error" || level === "warn";
+        }
+        if (logPage.levelFilter === "errors") {
+            return level === "error";
+        }
+        return true;
+    }
+
     function tokens() {
         var arr = [];
         var raw = String(logPage.logs).replace(/\u001b\[[0-9;]*m/g, "");
         var lines = raw.split("\n");
         for (var i = 0; i < lines.length; i++) {
-            var lower = lines[i].toLowerCase();
-            var c = "#d0d4da";
-            if (lower.indexOf("error") >= 0 || lower.indexOf("traceback") >= 0 || lower.indexOf("fatal") >= 0) {
-                c = DS.danger;
-            } else if (lower.indexOf("warn") >= 0) {
-                c = DS.warn;
-            } else if (lower.indexOf("debug") >= 0) {
-                c = DS.debug;
-            } else if (lower.indexOf("info") >= 0) {
-                c = DS.info;
+            var level = logPage.levelOf(lines[i]);
+            if (!logPage.keeps(level)) {
+                continue;
             }
-            arr.push({ color: c, text: lines[i] });
+            arr.push({ color: logPage.colorFor(level), text: lines[i] });
         }
         return arr;
+    }
+
+    function hiddenCount() {
+        if (logPage.levelFilter === "all" || logPage.logs === "") {
+            return 0;
+        }
+        var total = String(logPage.logs).split("\n").length;
+        return Math.max(0, total - logPage.tokens().length);
     }
 
     ColumnLayout {
@@ -84,6 +135,33 @@ Item {
             color: DS.divider
         }
 
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 5
+            visible: !logPage.loading && logPage.logs !== ""
+
+            Repeater {
+                model: logPage.filterOptions
+
+                delegate: ChipButton {
+                    required property var modelData
+                    text: modelData.label
+                    highlighted: logPage.levelFilter === modelData.key
+                    onClicked: logPage.levelFilter = modelData.key
+                }
+            }
+
+            Text {
+                Layout.fillWidth: true
+                visible: logPage.hiddenCount() > 0
+                text: i18n("%1 líneas ocultas", logPage.hiddenCount())
+                color: DS.faint
+                font.pixelSize: 10
+                elide: Text.ElideRight
+                horizontalAlignment: Text.AlignRight
+            }
+        }
+
         Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -115,9 +193,18 @@ Item {
                 font.pixelSize: Kirigami.Theme.defaultFont.pixelSize
             }
 
+            Text {
+                anchors.centerIn: parent
+                visible: !logPage.loading && logPage.error === "" && logPage.logs !== ""
+                    && logPage.levelFilter !== "all" && logPage.tokens().length === 0
+                text: i18n("Ninguna línea de ese nivel")
+                color: DS.subText
+                font.pixelSize: Kirigami.Theme.defaultFont.pixelSize
+            }
+
             Rectangle {
                 anchors.fill: parent
-                visible: !logPage.loading && logPage.error === "" && logPage.logs !== ""
+                visible: !logPage.loading && logPage.error === "" && logPage.tokens().length > 0
                 radius: Kirigami.Units.smallSpacing
                 color: DS.logBg
                 border.color: DS.logBorder

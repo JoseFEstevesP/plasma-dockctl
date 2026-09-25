@@ -10,11 +10,22 @@ Kirigami.FormLayout {
     property alias cfg_backendPort: portSpin.value
     property alias cfg_confirmRemove: confirmRemove.checked
     property alias cfg_showStopped: showStopped.checked
+    property alias cfg_statsInterval: statsSpin.value
+    property alias cfg_showStatsChip: showStatsChip.checked
 
     PlasmaComponents.SpinBox {
         id: refreshSpin
         Kirigami.FormData.label: i18n("Intervalo de refresco (segundos):")
         from: 1
+        to: 120
+        stepSize: 1
+        editable: true
+    }
+
+    PlasmaComponents.SpinBox {
+        id: statsSpin
+        Kirigami.FormData.label: i18n("Intervalo de medición de consumo (segundos):")
+        from: 5
         to: 120
         stepSize: 1
         editable: true
@@ -37,5 +48,10 @@ Kirigami.FormLayout {
     PlasmaComponents.CheckBox {
         id: showStopped
         Kirigami.FormData.label: i18n("Mostrar contenedores detenidos:")
+    }
+
+    PlasmaComponents.CheckBox {
+        id: showStatsChip
+        Kirigami.FormData.label: i18n("Mostrar el contenedor que más CPU usa en la cabecera:")
     }
 }
