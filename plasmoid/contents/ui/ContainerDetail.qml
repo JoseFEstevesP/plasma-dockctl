@@ -79,6 +79,8 @@ Item {
             Flickable {
                 id: scroll
                 anchors.fill: contentArea
+                anchors.bottomMargin: actionBar.visible
+                    ? actionBar.height + Kirigami.Units.smallSpacing : 0
                 visible: !detailPage.loading && detailPage.error === "" && detailPage.detailData
                 clip: true
                 contentWidth: width
@@ -194,52 +196,60 @@ Item {
                         color: DS.subText
                         font.pixelSize: Kirigami.Theme.smallFont.pixelSize
                     }
+                }
+            }
 
-                    Item { Layout.preferredHeight: Kirigami.Units.smallSpacing * 2 }
+            // Barra de acciones fija al pie, anclada (no en el ColumnLayout:
+            // al depender de `visible` el layout no le reservaba alto y la
+            // dejaba en y=0 encima de la cabecera). Adentro del Flickable se
+            // salia del popup en los detalles largos y el clic lo consumia el
+            // scroll, asi que «Ver logs» no hacia nada. En 3 columnas ocupa
+            // 269px de los 410; en una sola fila pedia 430 y se elidaban.
+            GridLayout {
+                id: actionBar
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                visible: !detailPage.loading && detailPage.error === "" && detailPage.detailData
+                columns: 3
+                rowSpacing: Kirigami.Units.smallSpacing
+                columnSpacing: Kirigami.Units.smallSpacing
 
-                    RowLayout {
-                        Layout.fillWidth: true
-                        spacing: Kirigami.Units.smallSpacing
+                ChipButton {
+                    text: detailPage.detailData && detailPage.detailData.running
+                            ? i18n("Parar")
+                            : i18n("Iniciar")
+                    icon: detailPage.detailData && detailPage.detailData.running
+                                ? Qt.resolvedUrl("../images/icons/stop.svg")
+                                : Qt.resolvedUrl("../images/icons/play.svg")
+                    accent: true
+                    onClicked: detailPage.requestAction(detailPage.container.name,
+                        detailPage.detailData && detailPage.detailData.running ? "stop" : "start")
+                }
 
-                        ChipButton {
-                            text: detailPage.detailData && detailPage.detailData.running
-                                    ? i18n("Parar")
-                                    : i18n("Iniciar")
-                            icon: detailPage.detailData && detailPage.detailData.running
-                                        ? Qt.resolvedUrl("../images/icons/stop.svg")
-                                        : Qt.resolvedUrl("../images/icons/play.svg")
-                            accent: true
-                            onClicked: detailPage.requestAction(detailPage.container.name,
-                                detailPage.detailData && detailPage.detailData.running ? "stop" : "start")
-                        }
+                ChipButton {
+                    text: i18n("Reiniciar")
+                    icon: Qt.resolvedUrl("../images/icons/refresh.svg")
+                    onClicked: detailPage.requestAction(detailPage.container.name, "restart")
+                }
 
-                        ChipButton {
-                            text: i18n("Reiniciar")
-                            icon: Qt.resolvedUrl("../images/icons/refresh.svg")
-                            onClicked: detailPage.requestAction(detailPage.container.name, "restart")
-                        }
+                ChipButton {
+                    text: i18n("Eliminar")
+                    icon: Qt.resolvedUrl("../images/icons/trash.svg")
+                    onClicked: detailPage.requestAction(detailPage.container.name, "remove")
+                }
 
-                        ChipButton {
-                            text: i18n("Eliminar")
-                            icon: Qt.resolvedUrl("../images/icons/trash.svg")
-                            onClicked: detailPage.requestAction(detailPage.container.name, "remove")
-                        }
+                ChipButton {
+                    text: i18n("Procesos")
+                    icon: Qt.resolvedUrl("../images/icons/list.svg")
+                    visible: detailPage.detailData && detailPage.detailData.running
+                    onClicked: detailPage.topRequested()
+                }
 
-                        Item { Layout.fillWidth: true }
-
-                        ChipButton {
-                            text: i18n("Procesos")
-                            icon: Qt.resolvedUrl("../images/icons/list.svg")
-                            visible: detailPage.detailData && detailPage.detailData.running
-                            onClicked: detailPage.topRequested()
-                        }
-
-                        ChipButton {
-                            text: i18n("Ver logs")
-                            icon: Qt.resolvedUrl("../images/icons/logs.svg")
-                            onClicked: detailPage.openLogs(detailPage.container.name)
-                        }
-                    }
+                ChipButton {
+                    text: i18n("Ver logs")
+                    icon: Qt.resolvedUrl("../images/icons/logs.svg")
+                    onClicked: detailPage.openLogs(detailPage.container.name)
                 }
             }
         }

@@ -551,7 +551,6 @@ IconButton {
     function openLogs(name) {
         root.logs = "";
         root.logsError = "";
-        logsView.levelFilter = "all";
         root.currentPage = 2;
         root.fetchLogs(name);
     }

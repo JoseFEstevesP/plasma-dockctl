@@ -23,6 +23,16 @@ Item {
     signal back()
     signal refreshRequested()
 
+    // Cada vez que se muestra la pagina se vuelve al filtro "Todos". Antes lo
+    // hacia main.qml con `logsView.levelFilter = "all"`, que reventaba con
+    // ReferenceError (logsView is not defined) y abortaba openLogs antes de
+    // cambiar de pagina, dejando el boton "Ver logs" sin efecto.
+    onVisibleChanged: {
+        if (visible) {
+            levelFilter = "all";
+        }
+    }
+
     TextEdit {
         id: clipSource
         visible: false
@@ -188,8 +198,13 @@ Item {
             Text {
                 anchors.centerIn: parent
                 visible: !logPage.loading && logPage.error === "" && logPage.logs === ""
-                text: i18n("Sin logs")
+                text: logPage.containerName !== ""
+                        ? i18n("%1 no ha escrito nada en sus logs", logPage.containerName)
+                        : i18n("Sin logs")
                 color: DS.subText
+                width: parent.width - Kirigami.Units.largeSpacing * 2
+                wrapMode: Text.WordWrap
+                horizontalAlignment: Text.AlignHCenter
                 font.pixelSize: Kirigami.Theme.defaultFont.pixelSize
             }
 
