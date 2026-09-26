@@ -1,0 +1,99 @@
+# Maintainer: gato99
+#
+# Publicar en AUR (una vez, con la cuenta ya creada en aur.archlinux.org):
+#   git clone https://aur.archlinux.org/plasma-dockctl.git
+#   cp /ruta/al/repo/aur/PKGBUILD plasma-dockctl/
+#   cd plasma-dockctl && cp PKGBUILD . && makepkg --printsrcinfo > .SRCINFO
+#   git add PKGBUILD .SRCINFO && git commit -m "plasma-dockctl 1.1-1" && git push
+#
+# En cada version nueva: subir pkgver/pkgrel y repetir el push con los dos ficheros.
+
+pkgname=plasma-dockctl
+pkgver=1.1
+pkgrel=1
+pkgdesc="Widget de Plasma 6 para ver y gestionar los contenedores Docker desde la barra"
+arch=('any')
+url="https://github.com/JoseFEstevesP/plasma-dockctl"
+license=('GPL-3.0')
+depends=('python' 'docker')
+source=("git+${url}.git#tag=v${pkgver}")
+sha256sums=('SKIP')
+
+pkgver() {
+  cd "${srcdir}/plasma-dockctl"
+  printf '%s' "$(git describe --tags --always | sed 's/^v//')"
+}
+
+# La unidad del repo apunta al backend en $HOME porque la usa install.sh. El
+# paquete lo instala en /usr/lib/dockctl, asi que se retargeta la linea ExecStart
+# en lugar de mantener una segunda copia de la unidad que pueda desincronizarse.
+build() {
+  cd "${srcdir}/plasma-dockctl"
+  sed -i 's|^ExecStart=.*|ExecStart=/usr/bin/python3 /usr/lib/dockctl/backend.py|' \
+    systemd/dockctl.service
+}
+
+package() {
+  cd "${srcdir}/plasma-dockctl"
+
+  install -d "${pkgdir}/usr/share/plasma/plasmoids/org.gato99.dockctl"
+  cp -a plasmoid/. "${pkgdir}/usr/share/plasma/plasmoids/org.gato99.dockctl/"
+
+  install -Dm644 backend/backend.py "${pkgdir}/usr/lib/dockctl/backend.py"
+  install -Dm644 backend/test_backend.py "${pkgdir}/usr/lib/dockctl/test_backend.py"
+  install -Dm644 systemd/dockctl.service "${pkgdir}/usr/lib/systemd/user/dockctl.service"
+  install -Dm644 plasmoid/contents/images/docker.svg \
+    "${pkgdir}/usr/share/icons/hicolor/scalable/apps/docker.svg"
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  install -Dm644 README.md "${pkgdir}/usr/share/doc/${pkgname}/README.md"
+}
+
+# systemctl --user no funciona desde un shell de root: hay que ejecutarlo como el
+# usuario que instala y pasarle su bus, o el servicio no se habilita nunca.
+_user_systemctl() {
+  local user uid
+  user="${SUDO_USER:-$(id -un)}"
+  if [[ ${EUID} -eq 0 && ${user} != root ]]; then
+    uid=$(id -u "${user}")
+    runuser -u "${user}" -- env \
+      XDG_RUNTIME_DIR="/run/user/${uid}" \
+      DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/${uid}/bus" \
+      systemctl --user "$@"
+  else
+    systemctl --user "$@"
+  fi
+}
+
+post_install() {
+  local home
+  home="$(getent passwd "${SUDO_USER:-$(id -un)}" | cut -d: -f6)"
+
+  if [[ -f "${home}/.config/systemd/user/dockctl.service" ]]; then
+    echo "AVISO: quedo una unidad de install.sh en ${home}/.config/systemd/user/dockctl.service"
+    echo "       y tiene prioridad sobre la del paquete. Para quitarla:"
+    echo "         systemctl --user disable --now dockctl.service"
+    echo "         rm ${home}/.config/systemd/user/dockctl.service"
+    echo "         rm -r ${home}/.local/share/dockctl"
+  fi
+
+  _user_systemctl daemon-reload
+  _user_systemctl enable --now dockctl.service
+
+  echo
+  echo "plasma-dockctl ${pkgver}-${pkgrel} instalado."
+  echo "  - Anade el widget: clic derecho en la barra -> Anadir widgets ->"
+  echo "    categoria Sistema -> Contenedores Docker"
+  echo "  - Si no aparece, reinicia plasmashell:  kquitapp6 plasmashell && plasmashell"
+  echo "  - Backend en http://127.0.0.1:8427; el puerto se cambia en las opciones"
+  echo "    del widget (backendPort) y en ~/.config/dockctl/config.ini"
+  echo "  - Tests del backend:  python /usr/lib/dockctl/test_backend.py"
+}
+
+post_upgrade() {
+  _user_systemctl daemon-reload
+  _user_systemctl try-restart dockctl.service 2>/dev/null || true
+}
+
+post_remove() {
+  _user_systemctl disable --now dockctl.service 2>/dev/null || true
+}
