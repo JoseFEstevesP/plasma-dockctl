@@ -4,12 +4,12 @@
 #   git clone https://aur.archlinux.org/plasma-dockctl.git
 #   cp /ruta/al/repo/aur/PKGBUILD plasma-dockctl/
 #   cd plasma-dockctl && cp PKGBUILD . && makepkg --printsrcinfo > .SRCINFO
-#   git add PKGBUILD .SRCINFO && git commit -m "plasma-dockctl 1.1-1" && git push
+#   git add PKGBUILD .SRCINFO && git commit -m "plasma-dockctl 1.1.1-1" && git push
 #
 # En cada version nueva: subir pkgver/pkgrel y repetir el push con los dos ficheros.
 
 pkgname=plasma-dockctl
-pkgver=1.1
+pkgver=1.1.1
 pkgrel=1
 pkgdesc="Widget de Plasma 6 para ver y gestionar los contenedores Docker desde la barra"
 arch=('any')
