@@ -15,12 +15,15 @@ empaquetado (`.plasmoid`) y el código fuente comprimido (`.tar.gz` / `.zip`).
 
 [Ir a los releases](https://github.com/JoseFEstevesP/plasma-dockctl/releases)
 
-Instalación rápida con `gh`:
+Instalación rápida (instala el widget **y** el backend que necesita):
 
 ```bash
-gh release download --repo JoseFEstevesP/plasma-dockctl --pattern "*.plasmoid"
-kpackagetool6 -t Plasma/Applet -i org.gato99.dockctl.plasmoid
+git clone https://github.com/JoseFEstevesP/plasma-dockctl && cd plasma-dockctl && ./install.sh
 ```
+
+> El archivo `.plasmoid` de la release contiene solo la parte gráfica. Si lo
+> instalas tal cual, el widget aparecerá en la barra pero se quedará sin
+> backend. Ver [Instalación](#instalación).
 
 ## Funcionalidades
 
@@ -106,10 +109,25 @@ con reinicio automático, por lo que no hace falta `sudo` ni `root`.
 
 ## Instalación
 
+### Arch: AUR
+
+Todavía no está publicado. El registro de cuentas nuevas del AUR está cerrado
+temporalmente por un [incidente de seguridad](https://archlinux.org/news/active-aur-malicious-packages-incident/)
+y no hay fecha de reapertura. El `PKGBUILD` está preparado en
+[`aur/PKGBUILD`](aur/PKGBUILD) y se publicará en cuanto se reabra.
+
+### Cualquier distro: instalador completo (recomendado)
+
 ```bash
 git clone https://github.com/JoseFEstevesP/plasma-dockctl
 cd plasma-dockctl
 ./install.sh
+```
+
+O en una sola línea:
+
+```bash
+git clone https://github.com/JoseFEstevesP/plasma-dockctl && cd plasma-dockctl && ./install.sh
 ```
 
 El instalador:
@@ -122,18 +140,26 @@ El instalador:
 5. Crea `~/.config/dockctl/config.ini` con los valores por defecto si no existe.
 
 Después añade el widget con **clic derecho en la barra → Añadir widgets →
-Contenedores Docker**.
-
-### Instalación en un comando
+Contenedores Docker**, y reinicia plasmashell si no aparece:
 
 ```bash
-git clone https://github.com/JoseFEstevesP/plasma-dockctl && cd plasma-dockctl && ./install.sh
+kquitapp6 plasmashell && plasmashell
 ```
 
-### Instalar solo el widget desde un archivo local
+Para actualizar más adelante, sin volver a instalar nada:
 
-Como con cualquier otro elemento gráfico, puedes instalar únicamente el widget
-desde el archivo `dist/org.gato99.dockctl.plasmoid`:
+```bash
+git pull && ./update.sh --backend --no-dist
+```
+
+(`--no-dist` porque quien solo instala no necesita los paquetes de
+distribución; `--backend` sí, para copiar el backend nuevo y reiniciar el
+servicio.)
+
+### Solo el widget, desde el archivo `.plasmoid`
+
+Como con cualquier otro elemento gráfico, puedes instalar únicamente la parte
+gráfica desde el archivo `org.gato99.dockctl.plasmoid` de la release:
 
 1. Clic derecho en la barra → **Añadir o gestionar widgets**.
 2. Abre el menú **Obtener nuevos widgets → Instalar desde archivo local…**.
@@ -142,15 +168,15 @@ desde el archivo `dist/org.gato99.dockctl.plasmoid`:
 O desde terminal:
 
 ```bash
-kpackagetool6 -t Plasma/Applet -i dist/org.gato99.dockctl.plasmoid
+kpackagetool6 -t Plasma/Applet -i org.gato99.dockctl.plasmoid
 ```
 
 Para regenerar el paquete desde el código: `./build.sh`.
 
-> El archivo `.plasmoid` solo instala la parte gráfica. El widget necesita el
-> backend para funcionar: es el servicio que se instala con `./install.sh`,
-> así que lo habitual es usar el instalador completo; la opción del archivo
-> local sirve para probarlo o para actualizar el widget sin tocar el backend.
+> Esta vía instala **solo la interfaz**. El widget necesita el backend para
+> funcionar, y es el servicio que instala `./install.sh`; úsala para probarlo o
+> para actualizar el widget sin tocar el backend, no como instalación
+> completa.
 
 ## Configuración
 
@@ -248,7 +274,12 @@ plasma-dockctl/
 │   └── test_backend.py
 ├── systemd/
 │   └── dockctl.service  # Unidad de usuario
+├── aur/
+│   └── PKGBUILD         # Paquete para el AUR
+├── docs/screenshots/    # Capturas del README
 ├── install.sh
+├── update.sh            # Actualiza el widget instalado y regenera dist/
+├── build.sh             # Genera dist/org.gato99.dockctl.plasmoid
 └── uninstall.sh
 ```
 
