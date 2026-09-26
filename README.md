@@ -78,15 +78,24 @@ El backend acepta únicamente esos destinos; cualquier otro se rechaza con
 
 ## Capturas
 
-Vista principal, detalle de stack, detalle de contenedor y visor de logs:
+Consumo por contenedor, análisis del sistema y procesos:
+
+![Consumo por contenedor](docs/screenshots/vista-consumo.png)
+
+![Análisis del sistema](docs/screenshots/vista-analisis.png)
+
+![Procesos del contenedor](docs/screenshots/vista-top.png)
+
+Vista principal, detalle de stack, detalle de contenedor y visor de logs con
+el filtro de nivel:
 
 ![Vista principal](docs/screenshots/vista-principal.png)
 
 ![Vista de stack](docs/screenshots/vista-stack.png)
 
-![Detalle de contenedor](docs/screenshots/vista-detalle.png)
+![Detalle de contenedor](docs/screenshots/vista-diagnostico.png)
 
-![Visor de logs](docs/screenshots/vista-logs.png)
+![Visor de logs](docs/screenshots/vista-logs-filtro.png)
 
 ## Arquitectura
 
